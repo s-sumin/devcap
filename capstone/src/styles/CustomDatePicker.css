@@ -1,0 +1,62 @@
+/* 📅 캘린더 팝업 전체 */
+.react-datepicker {
+  font-size: 30px;
+  width: 400px;
+}
+
+/* 월/년도 드롭다운 */
+.react-datepicker__header {
+  padding-top: 10px;
+}
+
+.react-datepicker__current-month,
+.react-datepicker__month-read-view,
+.react-datepicker__year-read-view {
+  font-size: 30px;
+}
+
+.react-datepicker__navigation {
+  top: 30px;
+}
+
+.react-datepicker__month {
+  margin: 20px;
+}
+
+/* 요일 헤더 */
+/* 요일 헤더 전체 줄 */
+.react-datepicker__day-names {
+  display: flex;
+  justify-content: space-around;
+}
+
+/* 각 요일 셀 */
+.react-datepicker__day-name {
+  width: 42px;
+  height: 42px;
+  line-height: 42px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+/* 날짜 셀 */
+.react-datepicker__day {
+  width: 42px;
+  height: 42px;
+  line-height: 42px;
+  font-size: 18px;
+}
+
+/* 선택된 날짜 스타일 */
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #8321FF;
+  color: white;
+}
+
+/* 월/년도 드롭다운 셀 */
+.react-datepicker__month-dropdown,
+.react-datepicker__year-dropdown {
+  font-size: 15px;
+}
