@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import ToggleOffIcon from "../assets/icons/togglebutton.svg";
 import ToggleOnIcon from "../assets/icons/togglebutton2.svg";
@@ -11,18 +11,17 @@ const PanelWrapper = styled.div`
   padding: 32px;
   display: flex;
   flex-direction: column;
-/*   justify-content: space-between;
- */`;
+`;
 
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: var(--Primary-primary_300, #8E48E8);
+  color: #8E48E8;
   font-family: Pretendard;
   font-size: 30px;
   font-weight: 700;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 `;
 
 const ScriptBox = styled.div`
@@ -31,9 +30,10 @@ const ScriptBox = styled.div`
   line-height: 1.8;
   color: #333;
   overflow-y: auto;
-  max-height: 650px;
+  max-height: 600px;
   filter: ${({ blurred }) => (blurred ? "blur(5px)" : "none")};
   transition: filter 0.3s ease;
+
 `;
 
 const ToggleButton = styled.img`
@@ -48,9 +48,8 @@ const Button = styled.button`
   color: white;
   padding: 14px;
   font-family: Pretendard;
-font-size: 28px;
-font-style: normal;
-font-weight: 600;
+  font-size: 28px;
+  font-weight: 600;
   border: none;
   border-radius: 12px;
   cursor: pointer;
@@ -60,7 +59,45 @@ font-weight: 600;
   }
 `;
 
+const TimerText = styled.div`
+  font-size: 25px;
+  font-weight: 600;
+  margin-top: 16px;
+  color: #8321FF;
+`;
+
 const ScriptPanel = ({ scriptText, isBlurred, onToggleBlur, onFinish }) => {
+  const [isRunning, setIsRunning] = useState(false);
+  const [time, setTime] = useState(0);
+  const intervalRef = useRef(null);
+
+  useEffect(() => {
+    if (isRunning) {
+      intervalRef.current = setInterval(() => {
+        setTime((prev) => prev + 1);
+      }, 1000);
+    } else {
+      clearInterval(intervalRef.current);
+    }
+
+    return () => clearInterval(intervalRef.current);
+  }, [isRunning]);
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  };
+
+  const handleClick = () => {
+    if (!isRunning) {
+      setIsRunning(true); // 발표 시작
+    } else {
+      setIsRunning(false); // 발표 종료
+      onFinish?.();        // 부모에게 알림
+    }
+  };
+
   return (
     <PanelWrapper>
       <Header>
@@ -72,11 +109,13 @@ const ScriptPanel = ({ scriptText, isBlurred, onToggleBlur, onFinish }) => {
         />
       </Header>
 
-      <ScriptBox blurred={isBlurred}>
-        {scriptText}
-      </ScriptBox>
+      <ScriptBox blurred={isBlurred}>{scriptText}</ScriptBox>
 
-      <Button onClick={onFinish}>발표 마치기 →</Button>
+      <TimerText>⏱ {formatTime(time)}</TimerText>
+
+      <Button onClick={handleClick}>
+        {isRunning ? "발표 마치기 →" : "발표 시작하기"}
+      </Button>
     </PanelWrapper>
   );
 };

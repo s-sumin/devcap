@@ -64,7 +64,8 @@ const AnswerButton = styled.button`
 
 `;
 
-const PracFinish = () => {
+const PracFinish = ({ videoTitle, file, type }) => {
+
   const [selected, setSelected] = useState(null);
   const navigate = useNavigate();
 
@@ -74,7 +75,13 @@ const PracFinish = () => {
     // 0.3초 뒤에 페이지 이동
     setTimeout(() => {
       if (choice === "yes") {
-        navigate("/question"); // 질문 페이지로
+        navigate("/question", {
+          state: {
+            videoTitle, // ✅ 제목 전달
+            file,        // ✅ 파일도 함께 전달
+            type,
+          },
+        });
       } else {
         navigate("/"); // 홈으로
       }

@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useLocation } from "react-router-dom";
-
 import InterviewIcon from "../assets/icons/interview.svg";
 import SpeechIcon from "../assets/icons/speech.svg";
 
@@ -37,9 +36,9 @@ const TypeBadge = styled.div`
 `;
 
 const TitleInput = styled.input`
-  border: 0.8 solid #ccc;
+  border: 0.8px solid #ccc;
   border-radius: 8px;
-  color: var(--Black, #000);
+  color: #000;
   font-family: Pretendard;
   font-size: 30px;
   font-weight: 600;
@@ -54,7 +53,7 @@ const TitleInput = styled.input`
 
 const DateText = styled.span`
   margin-top: 8px;
-  color: var(--Neutral-neutral_600, #555);
+  color: #555;
   font-family: Pretendard;
   font-size: 24px;
   font-weight: 500;
@@ -62,19 +61,21 @@ const DateText = styled.span`
   margin-left: -100px;
 `;
 
-const PracticeTitle = () => {
-  const [videoTitle, setVideoTitle] = useState("");
-  const [today, setToday] = useState("");
-  const location = useLocation();
-  const { type } = location.state || {}; // 'interview' | 'speech'
+const PracticeTitle = ({ videoTitle, setVideoTitle,type }) => {
+  console.log("✅ PracticeTitle에서 type:", type);
 
-  useEffect(() => {
-    const now = new Date();
-    const formattedDate = `${now.getFullYear()}년 ${String(
-      now.getMonth() + 1
-    ).padStart(2, "0")}월 ${String(now.getDate()).padStart(2, "0")}일`;
-    setToday(formattedDate);
-  }, []);
+  const [today, setToday] = useState("");
+/*   const location = useLocation();
+  const { type } = location.state || {}; */
+
+useEffect(() => {
+  const now = new Date();
+  const formattedDate = `${now.getFullYear()}년 ${String(
+    now.getMonth() + 1
+  ).padStart(2, "0")}월 ${String(now.getDate()).padStart(2, "0")}일`;
+  setToday(formattedDate);
+
+}, [type]);
 
   const renderBadge = () => {
     if (type === "interview") {
@@ -103,7 +104,8 @@ const PracticeTitle = () => {
           type="text"
           placeholder="영상 제목을 입력하세요"
           value={videoTitle}
-          onChange={(e) => setVideoTitle(e.target.value)}
+          onChange={(e) => setVideoTitle?.(e.target.value)} // 함수가 있을 때만 변경
+          readOnly={!setVideoTitle} // 읽기 전용 여부 판단
         />
       </TopRow>
       <DateText>{today}</DateText>

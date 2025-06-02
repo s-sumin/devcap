@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useLocation } from "react-router-dom";
+
 import Layout from "../components/Layout";
 import Header from "../components/Header";
 import WebcamView from "../components/WebcamView";
 import ScriptPanel from "../components/ScriptPanel";
 import PracticeTitle from "../components/PracticeTitle";
-import PracFinish from "../components/PracFinish"; // ✅ 추가
+import PracFinish from "../components/PracFinish";
 
 const Container = styled.div`
   display: flex;
@@ -16,14 +17,12 @@ const Container = styled.div`
   position: relative;
 `;
 
-// 왼쪽 컬럼
 const LeftSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 30px;
 `;
 
-// ✅ 모달 오버레이 스타일
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
@@ -31,7 +30,7 @@ const ModalOverlay = styled.div`
   z-index: 1000;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.3); /* 어두운 반투명 배경 */
+  background: rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -39,10 +38,12 @@ const ModalOverlay = styled.div`
 
 const Practice = () => {
   const location = useLocation();
-  const { file } = location.state || {};
+  const { file, type } = location.state || {};
+
   const [scriptText, setScriptText] = useState("");
   const [isBlurred, setIsBlurred] = useState(false);
-  const [showFinishModal, setShowFinishModal] = useState(false); // ✅
+  const [showFinishModal, setShowFinishModal] = useState(false);
+  const [videoTitle, setVideoTitle] = useState(""); // ✅ 제목 상태
 
   useEffect(() => {
     if (file) {
@@ -59,7 +60,7 @@ const Practice = () => {
   };
 
   const handleFinish = () => {
-    setShowFinishModal(true); // ✅ 모달 열기
+    setShowFinishModal(true);
   };
 
   return (
@@ -68,19 +69,27 @@ const Practice = () => {
       <Container>
         <LeftSection>
           <WebcamView />
-          <PracticeTitle />
+          <PracticeTitle
+            videoTitle={videoTitle}
+            setVideoTitle={setVideoTitle}
+             type={type}
+          />
         </LeftSection>
 
         <ScriptPanel
           scriptText={scriptText}
           isBlurred={isBlurred}
           onToggleBlur={handleToggleBlur}
-          onFinish={handleFinish} // ✅
+          onFinish={handleFinish}
         />
 
         {showFinishModal && (
           <ModalOverlay>
-            <PracFinish />
+            <PracFinish
+              videoTitle={videoTitle}
+              file={file}
+              type={type}
+            />
           </ModalOverlay>
         )}
       </Container>
