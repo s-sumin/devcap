@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { useLocation } from "react-router-dom";
 import Layout from "../components/Layout";
 import Header from "../components/Header";
-import WebcamView from "../components/WebcamView";
+import QuWebcamView from "../components/QuWebcamView";
 import PracticeTitle from "../components/PracticeTitle";
 import QuestionPanel from "../components/QuestionPanel";
 import { uploadScript } from "../api/scriptApi";
@@ -27,6 +27,8 @@ const Question = () => {
   const location = useLocation();
   const { file, videoTitle, type } = location.state || {};
   const [isBlurred, setIsBlurred] = useState(false);
+  const [isCountingDown, setIsCountingDown] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   const [questions, setQuestions] = useState([]);
 
   useEffect(() => {
@@ -47,28 +49,31 @@ const Question = () => {
     }
   }, [file]);
 
-  const handleToggleBlur = () => {
-    setIsBlurred((prev) => !prev);
-  };
-
-  const handleFinish = () => {
-    // 발표 종료 시 처리 로직 (예: 저장 요청, 이동 등)
-  };
-
   return (
     <Layout>
       <Header />
       <Container>
         <LeftSection>
-          <WebcamView />
+          <QuWebcamView blurred={isCountingDown} countdown={countdown} />
           <PracticeTitle videoTitle={videoTitle} type={type} />
         </LeftSection>
 
         <QuestionPanel
           questions={questions}
           isBlurred={isBlurred}
-          onToggleBlur={handleToggleBlur}
-          onFinish={handleFinish}
+          onToggleBlur={() => setIsBlurred((prev) => !prev)}
+          onFinish={() => setIsBlurred(false)}
+          onCountdownStart={() => {
+            setCountdown(3);
+            setIsCountingDown(true);
+          }}
+          onCountdownEnd={() => {
+            setIsCountingDown(false);
+            setCountdown(0);
+          }}
+          countdown={countdown}
+          setCountdown={setCountdown}
+          setIsCountingDown={setIsCountingDown}
         />
       </Container>
     </Layout>

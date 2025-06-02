@@ -33,7 +33,6 @@ const ScriptBox = styled.div`
   max-height: 600px;
   filter: ${({ blurred }) => (blurred ? "blur(5px)" : "none")};
   transition: filter 0.3s ease;
-
 `;
 
 const ToggleButton = styled.img`
@@ -65,8 +64,7 @@ const TimerText = styled.div`
   margin-top: 16px;
   color: #8321FF;
 `;
-
-const ScriptPanel = ({ scriptText, isBlurred, onToggleBlur, onFinish }) => {
+const ScriptPanel = ({ scriptText, isBlurred, onToggleBlur, onFinish, onStartRecording, onStopRecording, videoTitle }) => {
   const [isRunning, setIsRunning] = useState(false);
   const [time, setTime] = useState(0);
   const intervalRef = useRef(null);
@@ -79,7 +77,6 @@ const ScriptPanel = ({ scriptText, isBlurred, onToggleBlur, onFinish }) => {
     } else {
       clearInterval(intervalRef.current);
     }
-
     return () => clearInterval(intervalRef.current);
   }, [isRunning]);
 
@@ -91,10 +88,17 @@ const ScriptPanel = ({ scriptText, isBlurred, onToggleBlur, onFinish }) => {
 
   const handleClick = () => {
     if (!isRunning) {
-      setIsRunning(true); // 발표 시작
+      if (!videoTitle.trim()) {
+        alert("영상 제목을 입력해주세요.");
+        return;
+      }
+
+      onStartRecording?.(); // 녹화 시작
+      setIsRunning(true);
     } else {
-      setIsRunning(false); // 발표 종료
-      onFinish?.();        // 부모에게 알림
+      onStopRecording?.(); // 녹화 종료
+      setIsRunning(false);
+      onFinish?.();        // 종료 처리
     }
   };
 
@@ -119,5 +123,4 @@ const ScriptPanel = ({ scriptText, isBlurred, onToggleBlur, onFinish }) => {
     </PanelWrapper>
   );
 };
-
 export default ScriptPanel;

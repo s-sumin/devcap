@@ -1,5 +1,5 @@
 // ✅ QuestionPanel.jsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
 const QPanelWrapper = styled.div`
@@ -13,13 +13,9 @@ const QPanelWrapper = styled.div`
 `;
 
 const QHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: #8E48E8;
-  font-family: Pretendard;
   font-size: 30px;
   font-weight: 700;
+  color: #8e48e8;
   margin-bottom: 20px;
 `;
 
@@ -30,8 +26,6 @@ const QuestionBox = styled.div`
   color: #333;
   overflow-y: auto;
   max-height: 600px;
-  filter: ${({ blurred }) => (blurred ? "blur(5px)" : "none")};
-  transition: filter 0.3s ease;
 `;
 
 const Button = styled.button`
@@ -58,30 +52,31 @@ const TimerText = styled.div`
   font-size: 25px;
   font-weight: 600;
   margin-top: 16px;
-  color: #8321FF;
+  color: #8321ff;
 `;
 
-const CountdownText = styled.div`
-  font-size: 40px;
-  font-weight: 700;
-  text-align: center;
-  margin: 20px 0;
-  color: #FF5252;
-`;
-
-const QuestionPanel = ({ questions = [], isBlurred, onToggleBlur, onFinish }) => {
+const QuestionPanel = ({
+  questions,
+  isBlurred,
+  onToggleBlur,
+  onFinish,
+  onCountdownStart,
+  onCountdownEnd,
+  countdown,
+  setCountdown,
+  setIsCountingDown
+}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [time, setTime] = useState(0);
-  const [isCountingDown, setIsCountingDown] = useState(false);
-  const [countdown, setCountdown] = useState(3);
   const intervalRef = useRef(null);
+  const countdownRef = useRef(0);
+  const [recorder, setRecorder] = useState(null);
+  const [videoChunks, setVideoChunks] = useState([]);
 
   useEffect(() => {
     if (isRunning) {
-      intervalRef.current = setInterval(() => {
-        setTime((prev) => prev + 1);
-      }, 1000);
+      intervalRef.current = setInterval(() => setTime((prev) => prev + 1), 1000);
     } else {
       clearInterval(intervalRef.current);
     }
@@ -89,52 +84,82 @@ const QuestionPanel = ({ questions = [], isBlurred, onToggleBlur, onFinish }) =>
   }, [isRunning]);
 
   useEffect(() => {
-    let countdownTimer;
-    if (isCountingDown && countdown > 0) {
-      countdownTimer = setTimeout(() => setCountdown(countdown - 1), 1000);
-    } else if (isCountingDown && countdown === 0) {
-      setIsCountingDown(false);
-      setCountdown(3);
-      setCurrentIndex((prev) => prev + 1);
-    }
-    return () => clearTimeout(countdownTimer);
-  }, [isCountingDown, countdown]);
+    if (countdown === 0) return;
 
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    countdownRef.current = countdown;
+
+    const timer = setInterval(() => {
+      countdownRef.current -= 1;
+      setCountdown(countdownRef.current);
+
+      if (countdownRef.current <= 0) {
+        clearInterval(timer);
+        setIsCountingDown(false);
+        onCountdownEnd?.();
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [countdown]);
+
+  const startRecording = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    const mediaRecorder = new MediaRecorder(stream);
+    const chunks = [];
+    mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(chunks, { type: "video/webm" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "recording.webm";
+      a.click();
+    };
+    mediaRecorder.start();
+    setRecorder(mediaRecorder);
   };
 
-  const handleNext = () => {
-    if (currentIndex < questions.length - 1) {
-      setIsCountingDown(true);
-    } else {
-      alert("마지막 질문입니다.");
-    }
+  const stopRecording = () => {
+    recorder?.stop();
   };
 
   const handleClick = () => {
     if (!isRunning) {
       setIsRunning(true);
+      startRecording();
     } else {
       setIsRunning(false);
+      stopRecording();
       onFinish?.();
     }
   };
 
+  const handleNext = () => {
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex((i) => i + 1);
+      setCountdown(3);
+      setIsCountingDown(true);
+      onCountdownStart?.();
+    } else {
+      alert("마지막 질문입니다.");
+    }
+  };
+
+  const formatTime = (seconds) =>
+    `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+
   return (
     <QPanelWrapper>
       <QHeader>질문</QHeader>
-      <QuestionBox blurred={isBlurred}>
-        {isCountingDown ? <CountdownText>{countdown}</CountdownText> : questions[currentIndex] || "질문이 없습니다."}
+      <QuestionBox>
+        {questions[currentIndex] || "질문이 없습니다."}
       </QuestionBox>
       <TimerText>⏱ {formatTime(time)}</TimerText>
       <Button onClick={handleClick}>
-        {isRunning ? "질문 마치기 →" : "질문 시작하기"}
+        {isRunning ? "질문 마치기" : "질문 시작하기"}
       </Button>
-      {isRunning && questions.length > 1 && currentIndex < questions.length - 1 && (
-        <Button onClick={handleNext} disabled={isCountingDown}>
+      {isRunning && currentIndex < questions.length - 1 && (
+        <Button onClick={handleNext} disabled={countdown > 0}>
           다음 질문 →
         </Button>
       )}

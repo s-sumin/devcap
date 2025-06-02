@@ -9,7 +9,7 @@ const Wrapper = styled.div`
   overflow: hidden;
   background-color: #ffffff;
   position: relative;
-  border: 1px solid #000000;
+  border: 0px solid #000000;
 `;
 
 const Layout = ({ children }) => {

@@ -43,7 +43,10 @@ const Practice = () => {
   const [scriptText, setScriptText] = useState("");
   const [isBlurred, setIsBlurred] = useState(false);
   const [showFinishModal, setShowFinishModal] = useState(false);
-  const [videoTitle, setVideoTitle] = useState(""); // ✅ 제목 상태
+  const [videoTitle, setVideoTitle] = useState("");
+  const [stream, setStream] = useState(null);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [recordedChunks, setRecordedChunks] = useState([]);
 
   useEffect(() => {
     if (file) {
@@ -54,6 +57,49 @@ const Practice = () => {
       reader.readAsText(file);
     }
   }, [file]);
+
+  const handleStreamReady = (incomingStream) => {
+    setStream(incomingStream);
+  };
+
+  const handleStartRecording = () => {
+    if (!videoTitle.trim()) {
+      alert("영상 제목을 입력해주세요.");
+      return;
+    }
+
+
+    if (!stream) return;
+    const recorder = new MediaRecorder(stream);
+    const chunks = [];
+
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) chunks.push(e.data);
+    };
+
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: "video/webm" });
+      const url = URL.createObjectURL(blob);
+
+      console.log("🎬 녹화 완료! Blob URL:", url);
+      console.log("📁 예상 파일명:", `${videoTitle || "recording"}.webm`);
+      console.log("💾 Blob size:", blob.size, "bytes");
+      console.log("💡 다운로드가 시작됩니다.");
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${videoTitle || "recording"}.webm`;
+      a.click();
+    };
+
+    recorder.start();
+    setMediaRecorder(recorder);
+    setRecordedChunks(chunks);
+  };
+
+  const handleStopRecording = () => {
+    mediaRecorder?.stop();
+  };
 
   const handleToggleBlur = () => {
     setIsBlurred((prev) => !prev);
@@ -68,11 +114,11 @@ const Practice = () => {
       <Header />
       <Container>
         <LeftSection>
-          <WebcamView />
+          <WebcamView onStreamReady={handleStreamReady} />
           <PracticeTitle
             videoTitle={videoTitle}
             setVideoTitle={setVideoTitle}
-             type={type}
+            type={type}
           />
         </LeftSection>
 
@@ -81,6 +127,9 @@ const Practice = () => {
           isBlurred={isBlurred}
           onToggleBlur={handleToggleBlur}
           onFinish={handleFinish}
+          onStartRecording={handleStartRecording}
+          onStopRecording={handleStopRecording}
+          videoTitle={videoTitle} // ✅ 제목 전달
         />
 
         {showFinishModal && (

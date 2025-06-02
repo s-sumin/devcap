@@ -1,7 +1,6 @@
 // src/components/WebcamView.jsx
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
-import Webcam from "react-webcam";
 
 const WebcamWrapper = styled.div`
   width: 1000px;
@@ -11,16 +10,30 @@ const WebcamWrapper = styled.div`
   overflow: hidden;
 `;
 
-const WebcamView = () => {
+const Video = styled.video`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const WebcamView = ({ onStreamReady }) => {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then((stream) => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play();
+          onStreamReady?.(stream);
+        }
+      })
+      .catch((err) => console.error("웹캠 접근 오류:", err));
+  }, []);
+
   return (
     <WebcamWrapper>
-      <Webcam
-        audio={false}
-        width="100%"
-        height="100%"
-        screenshotFormat="image/jpeg"
-        videoConstraints={{ facingMode: "user" }}
-      />
+      <Video ref={videoRef} muted playsInline />
     </WebcamWrapper>
   );
 };
