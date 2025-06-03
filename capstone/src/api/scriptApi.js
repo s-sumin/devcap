@@ -3,28 +3,22 @@ import axios from "axios";
 // 📌 API 기본 주소
 const API = process.env.REACT_APP_API_URL;
 
-// 📌 공통 payload 준비 함수
-const preparePayload = (scriptText) => {
+// 📌 토큰 가져오기
+const getToken = () => {
   const token = localStorage.getItem("accessToken");
-   console.log("📌 accessToken:", token);
-
-  if (!API) {
-    console.error("❌ API URL이 설정되지 않았습니다.");
-    throw new Error("API URL 환경변수를 확인해주세요 (.env에 REACT_APP_API_URL 추가)");
-  }
-
   if (!token) {
-    console.error("❌ accessToken이 없습니다.");
-    throw new Error("로그인이 필요합니다.");
+    throw new Error("❌ accessToken이 없습니다. 로그인이 필요합니다.");
   }
+  return token;
+};
 
-  const escapedScript = scriptText.replace(/\n/g, "\\n");
-
-  const payload = {
-    scripts: escapedScript,
-  };
-
-  return { token, payload };
+// 📌 FormData 구성
+const buildFormData = ({ userId, title, file }) => {
+  const formData = new FormData();
+  formData.append("user_id", userId);
+  formData.append("title", title);
+  formData.append("file", file);
+  return formData;
 };
 
 // 📌 공통 에러 핸들링
@@ -38,44 +32,46 @@ const handleError = (label, error) => {
   }
 };
 
-// ✅ 발표용 스크립트 업로드 함수 (/api/speech/upload)
-export const uploadSpeechScript = async (scriptText) => {
-  const { token, payload } = preparePayload(scriptText);
+// ✅ 면접용 업로드 (/api/resume/upload)
+export const uploadResumeScript = async ({ userId, title, file }) => {
+  const token = getToken();
+  const formData = buildFormData({ userId, title, file });
 
   try {
-    const res = await axios.post(`${API}/api/speech/upload`, payload, {
+    const res = await axios.post(`${API}/api/resume/upload`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      withCredentials: true,
-    });
-
-    console.log("✅ [uploadSpeechScript] 응답:", res.data);
-    return res.data;
-  } catch (error) {
-    handleError("uploadSpeechScript", error);
-    throw error;
-  }
-};
-
-// ✅ 면접용 스크립트 업로드 함수 (/api/resume/upload)
-export const uploadResumeScript = async (scriptText) => {
-  const { token, payload } = preparePayload(scriptText);
-
-  try {
-    const res = await axios.post(`${API}/api/resume/upload`, payload, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+        "Content-Type": "multipart/form-data",
       },
       withCredentials: true,
     });
 
     console.log("✅ [uploadResumeScript] 응답:", res.data);
     return res.data;
-  } catch (error) {
-    handleError("uploadResumeScript", error);
-    throw error;
+  } catch (err) {
+    handleError("uploadResumeScript", err);
+    throw err;
+  }
+};
+
+// ✅ 발표용 업로드 (/api/speech/upload)
+export const uploadSpeechScript = async ({ userId, title, file }) => {
+  const token = getToken();
+  const formData = buildFormData({ userId, title, file });
+
+  try {
+    const res = await axios.post(`${API}/api/speech/upload`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
+    });
+
+    console.log("✅ [uploadSpeechScript] 응답:", res.data);
+    return res.data;
+  } catch (err) {
+    handleError("uploadSpeechScript", err);
+    throw err;
   }
 };

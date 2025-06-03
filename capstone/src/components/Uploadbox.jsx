@@ -134,6 +134,7 @@ const Uploadbox = () => {
   const fileInputRef = useRef(null);
   const [uploadedFile, setUploadedFile] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [selectedType, setSelectedType] = useState(null);
   const navigate = useNavigate();
 
   const handleUploadBoxClick = () => {
@@ -148,37 +149,48 @@ const Uploadbox = () => {
     }
   };
 
-  const handleUploadAndNavigate = async (type) => {
-    if (!uploadedFile) {
-      alert("먼저 파일을 업로드해주세요.");
+  const handleSelectType = (type) => {
+    setSelectedType(type);
+    setShowModal(false);
+  };
+
+  const handleFinalNavigate = async () => {
+    if (!uploadedFile || !selectedType) {
+      alert("파일과 용도를 선택해주세요.");
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const scriptText = e.target.result;
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      alert("로그인이 필요합니다.");
+      navigate("/login");
+      return;
+    }
 
-      try {
-        if (type === "interview") {
-          await uploadResumeScript(scriptText);
-        } else {
-          await uploadSpeechScript(scriptText);
-        }
+    try {
+      const uploadData = {
+        userId: 1, // TODO: 실제 로그인된 유저 ID로 대체
+        title: uploadedFile.name,
+        file: uploadedFile,
+      };
 
-        navigate("/practice", {
-          state: {
-            file: uploadedFile,
-            type,
-          },
-        });
-      } catch (err) {
-        console.error("🚫 업로드 실패:", err);
-        alert("스크립트 업로드 실패");
+      if (selectedType === "interview") {
+        await uploadResumeScript(uploadData);
+      } else {
+        await uploadSpeechScript(uploadData);
       }
-    };
 
-    reader.readAsText(uploadedFile);
-    setShowModal(false);
+      navigate("/practice", {
+        state: {
+          file: uploadedFile,
+          type: selectedType,
+          videoTitle: uploadedFile.name, // ✅ 이 줄 추가
+        },
+      });
+    } catch (err) {
+      console.error("🚫 업로드 실패:", err);
+      alert("스크립트 업로드 실패");
+    }
   };
 
   const handleLoadFromS3 = () => {
@@ -220,11 +232,11 @@ const Uploadbox = () => {
           <ModalContent>
             이 스크립트는 어떤 용도인가요?
             <ModalButtonWrapper>
-              <ActionButton onClick={() => handleUploadAndNavigate("interview")}>
+              <ActionButton onClick={() => handleSelectType("interview")}>
                 <Icon src={InterviewIcon} alt="interview" />
                 면접
               </ActionButton>
-              <ActionButton onClick={() => handleUploadAndNavigate("speech")}>
+              <ActionButton onClick={() => handleSelectType("speech")}>
                 <Icon src={SpeechIcon} alt="speech" />
                 발표
               </ActionButton>
@@ -234,11 +246,17 @@ const Uploadbox = () => {
       )}
 
       <ButtonGroup>
-        <ActionButton disabled>
+        <ActionButton
+          onClick={handleFinalNavigate}
+          disabled={!uploadedFile || selectedType !== "interview"}
+        >
           <Icon src={InterviewIcon} alt="interview" />
           면접
         </ActionButton>
-        <ActionButton disabled>
+        <ActionButton
+          onClick={handleFinalNavigate}
+          disabled={!uploadedFile || selectedType !== "speech"}
+        >
           <Icon src={SpeechIcon} alt="speech" />
           발표
         </ActionButton>
