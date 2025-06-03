@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
-import { login } from "../api/auth";
-import { setTokens } from "../utils/token";
-import eyeIcon from "../assets/images/eye.png";
-import eyeOffIcon from "../assets/images/eye-off.png";
+import { login } from "../../api/auth";
+import { setTokens } from "../../utils/token";
+import eyeIcon from "../../assets/images/eye.png";
+import eyeOffIcon from "../../assets/images/eye-off.png";
 
 const Form = styled.div`
   width: 100%;

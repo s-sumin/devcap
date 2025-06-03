@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import RegisterStep1 from "../components/RegisterStep1";
-import RegisterStep2 from "../components/RegisterStep2";
+import RegisterStep1 from "../components/Register/RegisterStep1";
+import RegisterStep2 from "../components/Register/RegisterStep2";
 import Layout from "../components/Layout";
 import BackgroundImage from "../assets/images/backimage1.png";
 import { register } from "../api/auth";

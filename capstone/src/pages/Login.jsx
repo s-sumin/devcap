@@ -2,7 +2,7 @@
 import React from "react";
 import styled from "styled-components";
 import BackgroundImage from "../assets/images/backimage2.png";
-import LoginForm from "../components/LoginForm";
+import LoginForm from "../components/Login/LoginForm.jsx";
 import Layout from "../components/Layout.jsx";
 
 
@@ -27,17 +27,17 @@ const RightBox = styled.div`
 `;
 
 const Login = () => {
-    return (
-        <Layout>
-            <LoginWrapper>
-                <LeftImage />
-                <RightBox>
-                    <LoginForm />
-                </RightBox>
-            </LoginWrapper>
-        </Layout>
+  return (
+    <Layout>
+      <LoginWrapper>
+        <LeftImage />
+        <RightBox>
+          <LoginForm />
+        </RightBox>
+      </LoginWrapper>
+    </Layout>
 
-    );
+  );
 };
 
 export default Login;

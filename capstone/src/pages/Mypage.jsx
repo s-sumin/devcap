@@ -1,8 +1,8 @@
 import React from "react";
 import Layout from "../components/Layout.jsx";
 import Header from "../components/Header";
-import VideoFilter from "../components/VideoFilter";
-import VideoList from "../components/VideoList";
+import VideoFilter from "../components/Mypage/VideoFilter.jsx";
+import VideoList from "../components/Mypage/VideoList.jsx";
 import styled from "styled-components";
 
 const Container = styled.div`

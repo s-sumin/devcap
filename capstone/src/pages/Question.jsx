@@ -4,9 +4,9 @@ import styled from "styled-components";
 import { useLocation } from "react-router-dom";
 import Layout from "../components/Layout";
 import Header from "../components/Header";
-import QuWebcamView from "../components/QuWebcamView";
-import PracticeTitle from "../components/PracticeTitle";
-import QuestionPanel from "../components/QuestionPanel";
+import QuWebcamView from "../components/Question/QuWebcamView";
+import PracticeTitle from "../components/Practice/PracticeTitle";
+import QuestionPanel from "../components/Question/QuestionPanel";
 import { uploadScript } from "../api/scriptApi";
 
 const Container = styled.div`
@@ -15,13 +15,15 @@ const Container = styled.div`
   padding: 60px 100px;
   gap: 60px;
   position: relative;
-`;
+  `
+;
 
 const LeftSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 30px;
-`;
+  `
+;
 
 const Question = () => {
   const location = useLocation();
@@ -30,6 +32,7 @@ const Question = () => {
   const [isCountingDown, setIsCountingDown] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [questions, setQuestions] = useState([]);
+  const [webcamStream, setWebcamStream] = useState(null);
 
   useEffect(() => {
     if (file) {
@@ -54,13 +57,18 @@ const Question = () => {
       <Header />
       <Container>
         <LeftSection>
-          <QuWebcamView blurred={isCountingDown} countdown={countdown} />
+          <QuWebcamView
+            blurred={isCountingDown}
+            countdown={countdown}
+            onStreamReady={(stream) => setWebcamStream(stream)} // ✅ 이 라인
+          />
           <PracticeTitle videoTitle={videoTitle} type={type} />
         </LeftSection>
 
         <QuestionPanel
           questions={questions}
           isBlurred={isBlurred}
+          videoTitle={videoTitle}
           onToggleBlur={() => setIsBlurred((prev) => !prev)}
           onFinish={() => setIsBlurred(false)}
           onCountdownStart={() => {

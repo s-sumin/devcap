@@ -1,4 +1,3 @@
-// src/components/Uploadbox.jsx
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
@@ -18,7 +17,7 @@ const UploadBoxWrapper = styled.div`
 const UploadBox = styled.div`
   display: flex;
   width: 1000px;
-  height: 350px;
+  height: 280px;
   padding: 70px 310px;
   flex-direction: column;
   justify-content: center;
@@ -47,10 +46,27 @@ const UploadText = styled.p`
   line-height: 46px;
 `;
 
+const S3LoadNotice = styled.p`
+  margin-top: 20px;
+  font-size: 30px;
+  color: #555;
+  text-align: center;
+
+  span {
+    color: #8E48E8;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+      color: #6f1edc;
+    }
+  }
+`;
+
 const ButtonGroup = styled.div`
   display: flex;
   gap: 150px;
-  margin: 24px auto auto auto;
 `;
 
 const ActionButton = styled.button`
@@ -96,13 +112,10 @@ const Uploadbox = () => {
     if (file) {
       setUploadedFile(file);
 
-      // 파일 텍스트 읽기
       const reader = new FileReader();
       reader.onload = async (e) => {
         const scriptText = e.target.result;
-
         try {
-          // API 요청
           await uploadScript(scriptText);
           console.log("✅ 서버 업로드 완료");
         } catch (err) {
@@ -124,9 +137,21 @@ const Uploadbox = () => {
     navigate("/practice", {
       state: {
         file: uploadedFile,
-        type: type, // "interview" 또는 "speech"
+        type: type,
       },
     });
+  };
+
+  const handleLoadFromS3 = async () => {
+    console.log("✅ S3에서 파일 불러오기 실행");
+
+    try {
+
+      alert("S3에서 파일 불러오는 기능은 아직 연결되지 않았습니다.");
+    } catch (err) {
+      console.error("🚫 S3 파일 로드 실패:", err);
+      alert("S3에서 파일을 불러오지 못했습니다.");
+    }
   };
 
   return (
@@ -153,6 +178,11 @@ const Uploadbox = () => {
           </>
         )}
       </UploadBox>
+
+      <S3LoadNotice>
+        이미 업로드한 파일이 있다면{" "}
+        <span onClick={handleLoadFromS3}>여기를 클릭해주세요</span>
+      </S3LoadNotice>
 
       <ButtonGroup>
         <ActionButton onClick={() => handleGoToPractice('interview')}>

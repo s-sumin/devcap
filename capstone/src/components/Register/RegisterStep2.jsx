@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import eyeIcon from "../assets/images/eye.png";
-import eyeOffIcon from "../assets/images/eye-off.png";
+import eyeIcon from "../../assets/images/eye.png";
+import eyeOffIcon from "../../assets/images/eye-off.png";
 
-import Logo from "./common/Logo";
-import Title from "./common/Title";
-import Label from "./common/Label";
-import Input from "./common/Input";
-import Button from "./common/Button";
-import Error from "./common/Error";
+import Logo from "../common/Logo";
+import Title from "../common/Title";
+import Label from "../common/Label";
+import Input from "../common/Input";
+import Button from "../common/Button";
+import Error from "../common/Error";
 
 const Container = styled.div`
   width: 500px;

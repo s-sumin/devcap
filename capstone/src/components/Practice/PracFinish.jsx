@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 const Loading = styled.div`
   display: flex;
-  width: 771px;
-  height: 413px;
+  width: 740px;
+  height: 380px;
   padding: 54px;
   flex-direction: column;
   justify-content: center;
@@ -19,27 +19,26 @@ const Loading = styled.div`
 const TextLayout = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 66px;
+  gap: 40px;
 `;
 
 const Title = styled.div`
   color: #000;
   font-family: Pretendard;
-  font-size: 40px;
+  font-size: 45px;
   font-weight: 600;
-  line-height: 38px;
 `;
 
 const QuestionText = styled.div`
   color: #8e8e8e;
   font-family: Pretendard;
-  font-size: 20px;
+  font-size: 25px;
   font-weight: 500;
   line-height: 44px;
 
   p {
     color: #8e48e8;
-    font-size: 28px;
+    font-size: 35px;
     font-weight: 500;
   }
 `;
@@ -47,6 +46,7 @@ const QuestionText = styled.div`
 const ButtonContainer = styled.div`
   display: flex;
   gap: 30px;
+  margin-left: 250px;
 `;
 
 const AnswerButton = styled.button`
@@ -62,7 +62,12 @@ const AnswerButton = styled.button`
   color: ${({ selected }) => (selected ? "#FFF" : "#000")};
   transition: all 0.2s;
 
+  &:hover {
+    background: #8E48E8;
+    color: #FFF;
+  }
 `;
+
 
 const PracFinish = ({ videoTitle, file, type }) => {
 

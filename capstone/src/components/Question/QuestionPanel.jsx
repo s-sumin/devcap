@@ -1,6 +1,7 @@
 // ✅ QuestionPanel.jsx
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
+import Loading from "../Loading";
 
 const QPanelWrapper = styled.div`
   width: 600px;
@@ -64,7 +65,8 @@ const QuestionPanel = ({
   onCountdownEnd,
   countdown,
   setCountdown,
-  setIsCountingDown
+  setIsCountingDown,
+  videoTitle
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
@@ -72,7 +74,7 @@ const QuestionPanel = ({
   const intervalRef = useRef(null);
   const countdownRef = useRef(0);
   const [recorder, setRecorder] = useState(null);
-  const [videoChunks, setVideoChunks] = useState([]);
+  const [showLoading, setShowLoading] = useState(false);
 
   useEffect(() => {
     if (isRunning) {
@@ -100,7 +102,7 @@ const QuestionPanel = ({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [countdown]);
+  }, [countdown, onCountdownEnd, setCountdown, setIsCountingDown]);
 
   const startRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -112,7 +114,8 @@ const QuestionPanel = ({
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "recording.webm";
+      const safeTitle = videoTitle?.trim() || "recording";
+      a.download = `${safeTitle}.webm`;
       a.click();
     };
     mediaRecorder.start();
@@ -130,6 +133,7 @@ const QuestionPanel = ({
     } else {
       setIsRunning(false);
       stopRecording();
+      setShowLoading(true);
       onFinish?.();
     }
   };
@@ -163,6 +167,7 @@ const QuestionPanel = ({
           다음 질문 →
         </Button>
       )}
+      {showLoading && <Loading />}
     </QPanelWrapper>
   );
 };

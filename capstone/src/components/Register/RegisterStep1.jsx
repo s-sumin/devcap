@@ -3,14 +3,14 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import "../styles/CustomDatePicker.css";
+import "../../styles/CustomDatePicker.css";
 
-import Logo from "./common/Logo";
-import Title from "./common/Title";
-import Label from "./common/Label";
-import Input from "./common/Input";
-import Button from "./common/Button";
-import Error from "./common/Error";
+import Logo from "../common/Logo";
+import Title from "../common/Title";
+import Label from "../common/Label";
+import Input from "../common/Input";
+import Button from "../common/Button";
+import Error from "../common/Error";
 
 const StyledDatePicker = styled(DatePicker)`
   width: 600px;

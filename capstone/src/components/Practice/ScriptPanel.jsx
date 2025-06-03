@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
-import ToggleOffIcon from "../assets/icons/togglebutton.svg";
-import ToggleOnIcon from "../assets/icons/togglebutton2.svg";
+import ToggleOffIcon from "../../assets/icons/togglebutton.svg";
+import ToggleOnIcon from "../../assets/icons/togglebutton2.svg";
 
 const PanelWrapper = styled.div`
   width: 600px;
@@ -24,7 +24,9 @@ const Header = styled.div`
   margin-bottom: 20px;
 `;
 
-const ScriptBox = styled.div`
+const ScriptBox = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== "blurred"
+})`
   flex-grow: 1;
   font-size: 25px;
   line-height: 1.8;

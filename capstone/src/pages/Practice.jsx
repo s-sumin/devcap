@@ -4,10 +4,10 @@ import { useLocation } from "react-router-dom";
 
 import Layout from "../components/Layout";
 import Header from "../components/Header";
-import WebcamView from "../components/WebcamView";
-import ScriptPanel from "../components/ScriptPanel";
-import PracticeTitle from "../components/PracticeTitle";
-import PracFinish from "../components/PracFinish";
+import WebcamView from "../components/Practice/WebcamView";
+import ScriptPanel from "../components/Practice/ScriptPanel";
+import PracticeTitle from "../components/Practice/PracticeTitle";
+import PracFinish from "../components/Practice/PracFinish";
 
 const Container = styled.div`
   display: flex;

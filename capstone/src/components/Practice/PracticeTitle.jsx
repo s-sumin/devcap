@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useLocation } from "react-router-dom";
-import InterviewIcon from "../assets/icons/interview.svg";
-import SpeechIcon from "../assets/icons/speech.svg";
+import InterviewIcon from "../../assets/icons/interview.svg";
+import SpeechIcon from "../../assets/icons/speech.svg";
 
 const TitleSection = styled.div`
   display: flex;

@@ -19,17 +19,22 @@ const Video = styled.video`
 const WebcamView = ({ onStreamReady }) => {
   const videoRef = useRef(null);
 
-  useEffect(() => {
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play();
-          onStreamReady?.(stream);
-        }
-      })
-      .catch((err) => console.error("웹캠 접근 오류:", err));
-  }, []);
+useEffect(() => {
+  navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    .then((stream) => {
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current.play().catch(err => {
+            console.warn("🎥 play() 실패:", err);
+          });
+        };
+        onStreamReady?.(stream);
+      }
+    })
+    .catch((err) => console.error("웹캠 접근 오류:", err));
+}, []);
+
 
   return (
     <WebcamWrapper>
