@@ -1,4 +1,3 @@
-// ✅ Question.jsx
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useLocation } from "react-router-dom";
@@ -7,7 +6,10 @@ import Header from "../components/Header";
 import QuWebcamView from "../components/Question/QuWebcamView";
 import PracticeTitle from "../components/Practice/PracticeTitle";
 import QuestionPanel from "../components/Question/QuestionPanel";
-import { uploadScript } from "../api/scriptApi";
+import {
+  fetchInterviewQuestions,
+  fetchSpeechQuestions,
+} from "../api/questionApi";
 
 const Container = styled.div`
   display: flex;
@@ -15,15 +17,13 @@ const Container = styled.div`
   padding: 60px 100px;
   gap: 60px;
   position: relative;
-  `
-;
+`;
 
 const LeftSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 30px;
-  `
-;
+`;
 
 const Question = () => {
   const location = useLocation();
@@ -35,22 +35,26 @@ const Question = () => {
   const [webcamStream, setWebcamStream] = useState(null);
 
   useEffect(() => {
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const scriptText = e.target.result;
-        try {
-          const response = await uploadScript(scriptText);
-          const questionsArray = Object.values(response);
-          setQuestions(questionsArray);
-        } catch (err) {
-          console.error("질문 불러오기 실패", err);
-          setQuestions([]);
+    if (!file || !type) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const scriptText = e.target.result;
+      try {
+        let response;
+        if (type === "interview") {
+          response = await fetchInterviewQuestions(scriptText);
+        } else {
+          response = await fetchSpeechQuestions(scriptText);
         }
-      };
-      reader.readAsText(file);
-    }
-  }, [file]);
+        setQuestions(Object.values(response));
+      } catch (err) {
+        console.error("❌ 질문 불러오기 실패:", err);
+        setQuestions([]);
+      }
+    };
+    reader.readAsText(file);
+  }, [file, type]);
 
   return (
     <Layout>
@@ -60,7 +64,7 @@ const Question = () => {
           <QuWebcamView
             blurred={isCountingDown}
             countdown={countdown}
-            onStreamReady={(stream) => setWebcamStream(stream)} // ✅ 이 라인
+            onStreamReady={(stream) => setWebcamStream(stream)}
           />
           <PracticeTitle videoTitle={videoTitle} type={type} />
         </LeftSection>
