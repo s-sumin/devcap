@@ -1,6 +1,8 @@
+// ✅ QuestionPanel.jsx
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Loading from "../Loading";
+import { uploadAnswerVideo, uploadResumeVideo } from "../../api/videoApi";
 
 const QPanelWrapper = styled.div`
   width: 600px;
@@ -65,7 +67,8 @@ const QuestionPanel = ({
   countdown,
   setCountdown,
   setIsCountingDown,
-  videoTitle
+  videoTitle,
+  type // 👈 발표/면접 여부
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
@@ -107,16 +110,24 @@ const QuestionPanel = ({
     const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
     const mediaRecorder = new MediaRecorder(stream);
     const chunks = [];
+
     mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
-    mediaRecorder.onstop = () => {
+
+    mediaRecorder.onstop = async () => {
       const blob = new Blob(chunks, { type: "video/webm" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      const safeTitle = videoTitle?.trim() || "recording";
-      a.download = `${safeTitle}.webm`;
-      a.click();
+      setShowLoading(true);
+      try {
+        if (type === "interview") {
+          await uploadResumeVideo({ videoBlob: blob, videoTitle });
+        } else {
+          await uploadAnswerVideo({ videoBlob: blob, videoTitle });
+        }
+      } catch (err) {
+        console.error("❌ 영상 업로드 실패:", err);
+      }
+      setShowLoading(false);
     };
+
     mediaRecorder.start();
     setRecorder(mediaRecorder);
   };
@@ -136,7 +147,6 @@ const QuestionPanel = ({
     } else {
       setIsRunning(false);
       stopRecording();
-      setShowLoading(true);
       onFinish?.();
     }
   };
@@ -160,7 +170,7 @@ const QuestionPanel = ({
       <QHeader>질문</QHeader>
       <QuestionBox>
         {questions.length === 0 ? (
-          <div>❌ 질문이 없습니다. 응답을 불러오지 못했거나 질문이 생성되지 않았습니다.</div>
+          <div>❌ 질문이 없습니다.</div>
         ) : (
           <>
             <div>{questions[currentIndex]?.question}</div>

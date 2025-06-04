@@ -93,7 +93,9 @@ const Question = () => {
           countdown={countdown}
           setCountdown={setCountdown}
           setIsCountingDown={setIsCountingDown}
+          type={type} // ✅ 이 줄을 반드시 추가해야 함
         />
+
       </Container>
     </Layout>
   );
