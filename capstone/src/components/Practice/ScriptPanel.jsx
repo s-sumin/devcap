@@ -120,7 +120,7 @@ const ScriptPanel = ({ scriptText, isBlurred, onToggleBlur, onFinish, onStartRec
       <TimerText>⏱ {formatTime(time)}</TimerText>
 
       <Button onClick={handleClick}>
-        {isRunning ? "발표 마치기 →" : "발표 시작하기"}
+        {isRunning ? "연습 마치기 →" : "연습 시작하기"}
       </Button>
     </PanelWrapper>
   );

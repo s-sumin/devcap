@@ -2,14 +2,11 @@ import axios from "axios";
 
 const API = process.env.REACT_APP_API_URL;
 
-export const fetchInterviewQuestions = async (scriptText) => {
+// ✅ 면접 질문 (resumeId 사용)
+export const fetchInterviewQuestions = async (resumeId) => {
   const token = localStorage.getItem("accessToken");
 
-  const payload = {
-    additionalProp1: scriptText,
-    additionalProp2: "",  // 필요 없다면 빈 값 전달
-    additionalProp3: "",
-  };
+  const payload = { resumeId };
 
   const res = await axios.post(`${API}/api/interview-questions/resume`, payload, {
     headers: {
@@ -22,14 +19,11 @@ export const fetchInterviewQuestions = async (scriptText) => {
   return res.data;
 };
 
-export const fetchSpeechQuestions = async (scriptText) => {
+// ✅ 발표 질문 (speechId 사용)
+export const fetchSpeechQuestions = async (speechId) => {
   const token = localStorage.getItem("accessToken");
 
-  const payload = {
-    additionalProp1: scriptText,
-    additionalProp2: "",
-    additionalProp3: "",
-  };
+  const payload = { speechId };
 
   const res = await axios.post(`${API}/api/interview-questions/speech`, payload, {
     headers: {

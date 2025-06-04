@@ -156,8 +156,23 @@ const QuestionPanel = ({
     <QPanelWrapper>
       <QHeader>질문</QHeader>
       <QuestionBox>
-        {questions[currentIndex] || "질문이 없습니다."}
+        {questions.length === 0 ? (
+          <div>❌ 질문이 없습니다. 응답을 불러오지 못했거나 질문이 생성되지 않았습니다.</div>
+        ) : (
+          <>
+            <div>{questions[currentIndex]?.question}</div>
+            {questions[currentIndex]?.followUps?.length > 0 && (
+              <ul>
+                {questions[currentIndex].followUps.map((item, i) => (
+                  <li key={i}>• {item}</li>
+                ))}
+              </ul>
+            )}
+          </>
+        )}
+
       </QuestionBox>
+
       <TimerText>⏱ {formatTime(time)}</TimerText>
       <Button onClick={handleClick}>
         {isRunning ? "질문 마치기" : "질문 시작하기"}

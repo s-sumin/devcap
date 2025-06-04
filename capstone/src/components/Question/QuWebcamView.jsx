@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 
-// ✅ DOM에 전달되지 않도록 blurred 필터링
 const WebcamWrapper = styled.div.withConfig({
   shouldForwardProp: (prop) => prop !== "blurred",
 })`
@@ -42,10 +41,18 @@ const QuWebcamView = ({ blurred, countdown, onStreamReady }) => {
           video: true,
           audio: true,
         });
+
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          videoRef.current.play();
+
+          // ✅ play()는 안전하게 실행 (예외 발생 방지)
+          try {
+            await videoRef.current.play();
+          } catch (err) {
+            console.warn("🔄 video play() 실패 (무시 가능):", err.message);
+          }
         }
+
         onStreamReady?.(stream);
       } catch (err) {
         console.error("🎥 웹캠 접근 오류:", err);

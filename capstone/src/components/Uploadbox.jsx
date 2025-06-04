@@ -2,10 +2,14 @@ import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { uploadResumeScript, uploadSpeechScript } from '../api/scriptApi';
+import mammoth from "mammoth";
+import * as pdfjsLib from "pdfjs-dist";
 
 import PlusIcon from '../assets/icons/plus.svg';
 import InterviewIcon from '../assets/icons/interview.svg';
 import SpeechIcon from '../assets/icons/speech.svg';
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const UploadBoxWrapper = styled.div`
   display: flex;
@@ -67,7 +71,6 @@ const S3LoadNotice = styled.p`
 const ButtonGroup = styled.div`
   display: flex;
   gap: 150px;
-  margin-top: 40px;
 `;
 
 const ActionButton = styled.button`
@@ -141,57 +144,109 @@ const Uploadbox = () => {
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setUploadedFile(file);
-      setShowModal(true);
+  const handleFileChange = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  setUploadedFile(file);
+  setShowModal(true);
+
+  const fileExt = file.name.split('.').pop().toLowerCase();
+
+  if (fileExt === "txt") {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target.result;
+      console.log("📄 TXT 내용:", text);
+      // setScriptText(text);
+    };
+    reader.readAsText(file);
+  }
+
+  else if (fileExt === "docx") {
+    const arrayBuffer = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer });
+    console.log("📄 DOCX 내용:", result.value);
+    // setScriptText(result.value);
+  }
+
+  else if (fileExt === "pdf") {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let fullText = "";
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const pageText = content.items.map(item => item.str).join(" ");
+      fullText += pageText + "\n";
     }
-  };
+
+    console.log("📄 PDF 내용:", fullText);
+    // setScriptText(fullText);
+  }
+
+  else if (fileExt === "hwp") {
+    alert("📄 HWP 파일은 브라우저에서 직접 읽을 수 없어 서버에서 처리해야 합니다.");
+    // TODO: 서버 업로드 후 파싱 API 호출
+  }
+
+  else {
+    alert("❗ 지원되지 않는 파일 형식입니다.");
+  }
+};
 
   const handleSelectType = (type) => {
     setSelectedType(type);
     setShowModal(false);
   };
 
-  const handleFinalNavigate = async () => {
-    if (!uploadedFile || !selectedType) {
-      alert("파일과 용도를 선택해주세요.");
-      return;
+const handleFinalNavigate = async () => {
+  if (!uploadedFile || !selectedType) {
+    alert("파일과 용도를 선택해주세요.");
+    return;
+  }
+
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
+    alert("로그인이 필요합니다.");
+    navigate("/login");
+    return;
+  }
+
+  try {
+    const uploadData = {
+      userId: 1, // TODO: 로그인된 유저 ID로 교체
+      title: uploadedFile.name,
+      file: uploadedFile,
+    };
+
+    let response;
+    let stateData = {
+      file: uploadedFile,
+      type: selectedType,
+      videoTitle: uploadedFile.name,
+    };
+
+    if (selectedType === "interview") {
+      response = await uploadResumeScript(uploadData);
+      console.log("📦 면접 업로드 응답:", response); // ✅ 추가
+      stateData.resumeId = response.resumeId;
+    } else {
+      response = await uploadSpeechScript(uploadData);
+      console.log("📦 발표 업로드 응답:", response); // ✅ 추가
+      stateData.speechId = response.speechId;
     }
 
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      alert("로그인이 필요합니다.");
-      navigate("/login");
-      return;
-    }
+    console.log("🚀 다음 페이지로 넘기는 state:", stateData); // ✅ 추가
 
-    try {
-      const uploadData = {
-        userId: 1, // TODO: 실제 로그인된 유저 ID로 대체
-        title: uploadedFile.name,
-        file: uploadedFile,
-      };
+    navigate("/practice", { state: stateData });
+  } catch (err) {
+    console.error("🚫 업로드 실패:", err);
+    alert("스크립트 업로드 실패");
+  }
+};
 
-      if (selectedType === "interview") {
-        await uploadResumeScript(uploadData);
-      } else {
-        await uploadSpeechScript(uploadData);
-      }
-
-      navigate("/practice", {
-        state: {
-          file: uploadedFile,
-          type: selectedType,
-          videoTitle: uploadedFile.name, // ✅ 이 줄 추가
-        },
-      });
-    } catch (err) {
-      console.error("🚫 업로드 실패:", err);
-      alert("스크립트 업로드 실패");
-    }
-  };
 
   const handleLoadFromS3 = () => {
     alert("S3에서 파일 불러오기 기능은 아직 구현되지 않았습니다.");

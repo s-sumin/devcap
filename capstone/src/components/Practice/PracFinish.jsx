@@ -69,7 +69,7 @@ const AnswerButton = styled.button`
 `;
 
 
-const PracFinish = ({ videoTitle, file, type }) => {
+const PracFinish = ({ videoTitle, file, type, resumeId, speechId }) => {
 
   const [selected, setSelected] = useState(null);
   const navigate = useNavigate();
@@ -82,9 +82,11 @@ const PracFinish = ({ videoTitle, file, type }) => {
       if (choice === "yes") {
         navigate("/question", {
           state: {
-            videoTitle, // ✅ 제목 전달
-            file,        // ✅ 파일도 함께 전달
+            videoTitle,
+            file,
             type,
+            resumeId,
+            speechId,
           },
         });
       } else {
@@ -95,29 +97,29 @@ const PracFinish = ({ videoTitle, file, type }) => {
 
   return (
 
-      <Loading>
-        <TextLayout>
-          <Title>발표가 완료되었습니다.</Title>
-          <QuestionText>
-            <p>질문을 받으시겠습니까?</p>
-            (질문을 받지 않을 시 바로 분석 화면으로 넘어갑니다.)
-          </QuestionText>
-          <ButtonContainer>
-            <AnswerButton
-              selected={selected === "yes"}
-              onClick={() => handleSelect("yes")}
-            >
-              네
-            </AnswerButton>
-            <AnswerButton
-              selected={selected === "no"}
-              onClick={() => handleSelect("no")}
-            >
-              아니요
-            </AnswerButton>
-          </ButtonContainer>
-        </TextLayout>
-      </Loading>
+    <Loading>
+      <TextLayout>
+        <Title>발표가 완료되었습니다.</Title>
+        <QuestionText>
+          <p>질문을 받으시겠습니까?</p>
+          (질문을 받지 않을 시 바로 분석 화면으로 넘어갑니다.)
+        </QuestionText>
+        <ButtonContainer>
+          <AnswerButton
+            selected={selected === "yes"}
+            onClick={() => handleSelect("yes")}
+          >
+            네
+          </AnswerButton>
+          <AnswerButton
+            selected={selected === "no"}
+            onClick={() => handleSelect("no")}
+          >
+            아니요
+          </AnswerButton>
+        </ButtonContainer>
+      </TextLayout>
+    </Loading>
 
   );
 };

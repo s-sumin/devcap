@@ -138,6 +138,8 @@ const Practice = () => {
               videoTitle={videoTitle}
               file={file}
               type={type}
+              resumeId={location.state?.resumeId}
+              speechId={location.state?.speechId}
             />
           </ModalOverlay>
         )}
