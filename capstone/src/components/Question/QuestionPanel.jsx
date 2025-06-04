@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Loading from "../Loading";
 import { uploadAnswerVideo, uploadResumeVideo } from "../../api/videoApi";
+import { useNavigate } from "react-router-dom";
 
 const QPanelWrapper = styled.div`
   width: 600px;
@@ -68,7 +69,8 @@ const QuestionPanel = ({
   setCountdown,
   setIsCountingDown,
   videoTitle,
-  type // 👈 발표/면접 여부
+  type,
+  webcamStream
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
@@ -77,6 +79,7 @@ const QuestionPanel = ({
   const countdownRef = useRef(0);
   const [recorder, setRecorder] = useState(null);
   const [showLoading, setShowLoading] = useState(false);
+  const navigate = useNavigate(); // ✅ 페이지 이동용
 
   useEffect(() => {
     if (isRunning) {
@@ -91,7 +94,6 @@ const QuestionPanel = ({
     if (countdown === 0) return;
 
     countdownRef.current = countdown;
-
     const timer = setInterval(() => {
       countdownRef.current -= 1;
       setCountdown(countdownRef.current);
@@ -106,9 +108,29 @@ const QuestionPanel = ({
     return () => clearInterval(timer);
   }, [countdown, onCountdownEnd, setCountdown, setIsCountingDown]);
 
+  // ✅ showLoading 상태가 true일 때 10초 후 review 페이지로 이동
+  useEffect(() => {
+    if (showLoading) {
+      const timer = setTimeout(() => {
+        navigate("/review", {
+          state: {
+            videoTitle,
+            type,
+          },
+        });
+      }, 10000); // 10초 후 이동
+
+      return () => clearTimeout(timer);
+    }
+  }, [showLoading, navigate, videoTitle, type]);
+
   const startRecording = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    const mediaRecorder = new MediaRecorder(stream);
+    if (!webcamStream) {
+      alert("웹캠 스트림이 존재하지 않습니다.");
+      return;
+    }
+
+    const mediaRecorder = new MediaRecorder(webcamStream);
     const chunks = [];
 
     mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
@@ -125,7 +147,6 @@ const QuestionPanel = ({
       } catch (err) {
         console.error("❌ 영상 업로드 실패:", err);
       }
-      setShowLoading(false);
     };
 
     mediaRecorder.start();
@@ -173,11 +194,11 @@ const QuestionPanel = ({
           <div>❌ 질문이 없습니다.</div>
         ) : (
           <>
-            <div>{questions[currentIndex]?.question}</div>
+            <div>{questions[currentIndex]?.question?.text || questions[currentIndex]?.question}</div>
             {questions[currentIndex]?.followUps?.length > 0 && (
               <ul>
                 {questions[currentIndex].followUps.map((item, i) => (
-                  <li key={i}>• {item}</li>
+                  <li key={i}> {item?.text || item}</li>
                 ))}
               </ul>
             )}

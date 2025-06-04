@@ -1,5 +1,4 @@
-// src/components/Loading.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 const Overlay = styled.div`
@@ -30,6 +29,7 @@ const Title = styled.h2`
 const Description = styled.p`
   font-size: 18px;
   color: #444;
+  margin-top: 20px;
 `;
 
 const Spinner = styled.div`
@@ -42,16 +42,36 @@ const Spinner = styled.div`
   animation: spin 1s linear infinite;
 
   @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 `;
 
+const Countdown = styled.div`
+  font-size: 22px;
+  font-weight: 600;
+  color: #8E48E8;
+  margin-top: 16px;
+`;
+
 const Loading = () => {
+  const [secondsLeft, setSecondsLeft] = useState(10);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSecondsLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <Overlay>
       <Modal>
         <Title><strong>SpiCoach</strong>가 분석중입니다...</Title>
         <Spinner />
+        <Countdown>📦 분석 중... {secondsLeft}초</Countdown>
         <Description>
           응답을 분석해 최적화된 피드백을 드리기 위해 최대 3분 정도 소요될 수 있습니다. <br />
           잠시만 기다려주세요.

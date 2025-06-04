@@ -1,6 +1,7 @@
-// src/components/WebcamView.jsx
+// src/components/Practice/WebcamView.jsx
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
+import Webcam from "react-webcam";
 
 const WebcamWrapper = styled.div`
   width: 1000px;
@@ -10,35 +11,30 @@ const WebcamWrapper = styled.div`
   overflow: hidden;
 `;
 
-const Video = styled.video`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-`;
-
 const WebcamView = ({ onStreamReady }) => {
-  const videoRef = useRef(null);
+  const webcamRef = useRef(null);
 
-useEffect(() => {
-  navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-    .then((stream) => {
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.onloadedmetadata = () => {
-          videoRef.current.play().catch(err => {
-            console.warn("🎥 play() 실패:", err);
-          });
-        };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const stream = webcamRef.current?.video?.srcObject;
+      if (stream) {
         onStreamReady?.(stream);
+        clearInterval(interval);
       }
-    })
-    .catch((err) => console.error("웹캠 접근 오류:", err));
-}, []);
-
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <WebcamWrapper>
-      <Video ref={videoRef} muted playsInline />
+      <Webcam
+        ref={webcamRef}
+        audio
+        mirrored={false}
+        muted
+        playsInline
+        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      />
     </WebcamWrapper>
   );
 };

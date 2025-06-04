@@ -1,9 +1,8 @@
 import React, { useEffect, useRef } from "react";
+import Webcam from "react-webcam";
 import styled from "styled-components";
 
-const WebcamWrapper = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== "blurred",
-})`
+const WebcamWrapper = styled.div`
   width: 1000px;
   height: 677px;
   border-radius: 20px;
@@ -12,12 +11,6 @@ const WebcamWrapper = styled.div.withConfig({
   filter: ${({ blurred }) => (blurred ? "blur(5px)" : "none")};
   transition: filter 0.3s ease;
   position: relative;
-`;
-
-const Video = styled.video`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 `;
 
 const CountdownOverlay = styled.div`
@@ -32,39 +25,30 @@ const CountdownOverlay = styled.div`
 `;
 
 const QuWebcamView = ({ blurred, countdown, onStreamReady }) => {
-  const videoRef = useRef(null);
+  const webcamRef = useRef(null);
 
   useEffect(() => {
-    const initWebcam = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true,
-        });
-
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-
-          // ✅ play()는 안전하게 실행 (예외 발생 방지)
-          try {
-            await videoRef.current.play();
-          } catch (err) {
-            console.warn("🔄 video play() 실패 (무시 가능):", err.message);
-          }
-        }
-
+    const interval = setInterval(() => {
+      const stream = webcamRef.current?.stream;
+      if (stream && stream.active) {
         onStreamReady?.(stream);
-      } catch (err) {
-        console.error("🎥 웹캠 접근 오류:", err);
+        clearInterval(interval);
       }
-    };
-
-    initWebcam();
+    }, 300);
+    return () => clearInterval(interval);
   }, []);
+
 
   return (
     <WebcamWrapper blurred={blurred}>
-      <Video ref={videoRef} muted playsInline />
+      <Webcam
+        ref={webcamRef}
+        audio
+        mirrored={false}
+        muted
+        playsInline
+        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      />
       {countdown > 0 && <CountdownOverlay>{countdown}</CountdownOverlay>}
     </WebcamWrapper>
   );
