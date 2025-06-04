@@ -1,4 +1,3 @@
-// ✅ QuestionPanel.jsx
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Loading from "../Loading";
@@ -128,6 +127,10 @@ const QuestionPanel = ({
 
   const handleClick = () => {
     if (!isRunning) {
+      if (!videoTitle || !videoTitle.trim()) {
+        alert("영상 제목을 입력해주세요.");
+        return;
+      }
       setIsRunning(true);
       startRecording();
     } else {
@@ -170,7 +173,6 @@ const QuestionPanel = ({
             )}
           </>
         )}
-
       </QuestionBox>
 
       <TimerText>⏱ {formatTime(time)}</TimerText>

@@ -232,15 +232,17 @@ const handleFinalNavigate = async () => {
       response = await uploadResumeScript(uploadData);
       console.log("📦 면접 업로드 응답:", response); // ✅ 추가
       stateData.resumeId = response.resumeId;
+      navigate("/question", { state: stateData });
     } else {
       response = await uploadSpeechScript(uploadData);
       console.log("📦 발표 업로드 응답:", response); // ✅ 추가
       stateData.speechId = response.speechId;
+      navigate("/practice", { state: stateData });
     }
 
     console.log("🚀 다음 페이지로 넘기는 state:", stateData); // ✅ 추가
 
-    navigate("/practice", { state: stateData });
+    
   } catch (err) {
     console.error("🚫 업로드 실패:", err);
     alert("스크립트 업로드 실패");

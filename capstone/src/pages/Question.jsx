@@ -1,3 +1,4 @@
+// ✅ Question.jsx
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useLocation } from "react-router-dom";
@@ -28,29 +29,19 @@ const LeftSection = styled.div`
 
 const Question = () => {
   const location = useLocation();
-  const { file, videoTitle, type, resumeId, speechId } = location.state || {};
+  const { file, type, resumeId, speechId } = location.state || {};
 
+  const [videoTitle, setVideoTitle] = useState("");
   const [isBlurred, setIsBlurred] = useState(false);
   const [isCountingDown, setIsCountingDown] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [questions, setQuestions] = useState([]);
   const [webcamStream, setWebcamStream] = useState(null);
 
-  // ✅ 디버깅 로그
-  console.log("📍 Question.jsx 진입");
-  console.log("📦 location.state:", location.state);
-
   useEffect(() => {
-    if (!type || (!resumeId && !speechId)) {
-      console.warn("⚠️ 질문 로딩 조건이 부족합니다. type/resumeId/speechId를 확인하세요.");
-      return;
-    }
+    if (!type || (!resumeId && !speechId)) return;
 
     const loadQuestions = async () => {
-      console.log("📨 요청 타입:", type);
-      console.log("📨 resumeId:", resumeId);
-      console.log("📨 speechId:", speechId);
-
       try {
         let response;
         if (type === "interview") {
@@ -58,14 +49,9 @@ const Question = () => {
         } else {
           response = await fetchSpeechQuestions(speechId);
         }
-
-        console.log("✅ 질문 응답 데이터:", response);
-        const parsed = response.questions; // ✅ 핵심 수정: 질문 배열 추출
-        console.log("✅ 파싱된 질문 배열:", parsed);
-
-        setQuestions(parsed);
+        setQuestions(response.questions);
       } catch (err) {
-        console.error("❌ 질문 불러오기 실패:", err);
+        console.error("질문 불러오기 실패:", err);
         setQuestions([]);
       }
     };
@@ -83,7 +69,11 @@ const Question = () => {
             countdown={countdown}
             onStreamReady={(stream) => setWebcamStream(stream)}
           />
-          <PracticeTitle videoTitle={videoTitle} type={type} />
+          <PracticeTitle
+            videoTitle={videoTitle}
+            setVideoTitle={setVideoTitle}
+            type={type}
+          />
         </LeftSection>
 
         <QuestionPanel

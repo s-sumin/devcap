@@ -1,3 +1,4 @@
+//scriptApi.js
 import axios from "axios";
 
 // 📌 API 기본 주소

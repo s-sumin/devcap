@@ -8,6 +8,7 @@ import WebcamView from "../components/Practice/WebcamView";
 import ScriptPanel from "../components/Practice/ScriptPanel";
 import PracticeTitle from "../components/Practice/PracticeTitle";
 import PracFinish from "../components/Practice/PracFinish";
+import { uploadPracticeVideo } from "../api/videoApi"; // ✅ API 분리
 
 const Container = styled.div`
   display: flex;
@@ -38,7 +39,7 @@ const ModalOverlay = styled.div`
 
 const Practice = () => {
   const location = useLocation();
-  const { file, type } = location.state || {};
+  const { file, type, resumeId, speechId } = location.state || {};
 
   const [scriptText, setScriptText] = useState("");
   const [isBlurred, setIsBlurred] = useState(false);
@@ -62,14 +63,26 @@ const Practice = () => {
     setStream(incomingStream);
   };
 
+  const uploadVideo = async (videoBlob) => {
+    try {
+      await uploadPracticeVideo({
+        videoBlob,
+        videoTitle,
+        type,
+      });
+    } catch (err) {
+      console.error("❌ 영상 업로드 실패:", err);
+    }
+  };
+
   const handleStartRecording = () => {
     if (!videoTitle.trim()) {
       alert("영상 제목을 입력해주세요.");
       return;
     }
 
-
     if (!stream) return;
+
     const recorder = new MediaRecorder(stream);
     const chunks = [];
 
@@ -79,17 +92,7 @@ const Practice = () => {
 
     recorder.onstop = () => {
       const blob = new Blob(chunks, { type: "video/webm" });
-      const url = URL.createObjectURL(blob);
-
-      console.log("🎬 녹화 완료! Blob URL:", url);
-      console.log("📁 예상 파일명:", `${videoTitle || "recording"}.webm`);
-      console.log("💾 Blob size:", blob.size, "bytes");
-      console.log("💡 다운로드가 시작됩니다.");
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${videoTitle || "recording"}.webm`;
-      a.click();
+      uploadVideo(blob); // ✅ 브라우저 저장 없이 서버 업로드만
     };
 
     recorder.start();
@@ -129,7 +132,7 @@ const Practice = () => {
           onFinish={handleFinish}
           onStartRecording={handleStartRecording}
           onStopRecording={handleStopRecording}
-          videoTitle={videoTitle} // ✅ 제목 전달
+          videoTitle={videoTitle}
         />
 
         {showFinishModal && (
@@ -138,8 +141,8 @@ const Practice = () => {
               videoTitle={videoTitle}
               file={file}
               type={type}
-              resumeId={location.state?.resumeId}
-              speechId={location.state?.speechId}
+              resumeId={resumeId}
+              speechId={speechId}
             />
           </ModalOverlay>
         )}
