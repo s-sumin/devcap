@@ -1,4 +1,3 @@
-// ✅ Question.jsx
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useLocation } from "react-router-dom";
@@ -29,7 +28,13 @@ const LeftSection = styled.div`
 
 const Question = () => {
   const location = useLocation();
-  const { file, type, resumeId, speechId } = location.state || {};
+  const {
+    file,
+    type,
+    resumeId,
+    speechId,
+    videoId: practiceVideoId, // ✅ practice에서 넘어온 videoId 받기 (발표용)
+  } = location.state || {};
 
   const [videoTitle, setVideoTitle] = useState("");
   const [isBlurred, setIsBlurred] = useState(false);
@@ -68,7 +73,6 @@ const Question = () => {
             blurred={isCountingDown}
             countdown={countdown}
             onStreamReady={(stream) => setWebcamStream(stream)}
-            
           />
           <PracticeTitle
             videoTitle={videoTitle}
@@ -94,10 +98,12 @@ const Question = () => {
           countdown={countdown}
           setCountdown={setCountdown}
           setIsCountingDown={setIsCountingDown}
-          type={type} 
-          webcamStream={webcamStream}// ✅ 이 줄을 반드시 추가해야 함
+          type={type}
+          webcamStream={webcamStream}
+          resumeId={resumeId}
+          speechId={speechId}
+          practiceVideoId={practiceVideoId} // ✅ 발표용 videoId 추가 전달
         />
-
       </Container>
     </Layout>
   );

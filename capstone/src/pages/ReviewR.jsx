@@ -1,4 +1,5 @@
-import React from "react";
+// src/pages/ReviewR.jsx
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { useLocation } from "react-router-dom";
 import Layout from "../components/Layout";
@@ -10,8 +11,7 @@ const Row = styled.div`
   align-items: flex-start;
   gap: 50px;
   margin: 20px auto auto 35px;
-
-`
+`;
 
 const TotalReviewButton = styled.button`
   height: 50px;
@@ -24,8 +24,6 @@ const TotalReviewButton = styled.button`
   cursor: pointer;
   font-family: Pretendard;
   font-size: 18px;
-  font-weight: 600;
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -35,17 +33,25 @@ const TotalReviewButton = styled.button`
   }
 `;
 
+const ReviewR = () => {
+  const location = useLocation();
+  const { videoId, videoTitle } = location.state || {};
 
-const Review = () => {
+  useEffect(() => {
+    console.log("🎬 [ReviewR] 영상 정보 확인");
+    console.log("📦 videoId:", videoId);
+    console.log("📦 videoType:", "resume");
+  }, [videoId]);
+
   return (
     <Layout>
       <Header />
       <Row>
-        <VideoPlayer />
-        <TotalReviewButton>종합 분석 보기</TotalReviewButton>
+        <VideoPlayer videoId={videoId} videoType="resume" />
+        <TotalReviewButton>면접 종합 분석 보기</TotalReviewButton>
       </Row>
     </Layout>
   );
 };
 
-export default Review;
+export default ReviewR;

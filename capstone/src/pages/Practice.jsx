@@ -8,7 +8,7 @@ import WebcamView from "../components/Practice/WebcamView";
 import ScriptPanel from "../components/Practice/ScriptPanel";
 import PracticeTitle from "../components/Practice/PracticeTitle";
 import PracFinish from "../components/Practice/PracFinish";
-import { uploadPracticeVideo } from "../api/videoApi"; // ✅ API 분리
+import { uploadPracticeVideo } from "../api/videoApi";
 
 const Container = styled.div`
   display: flex;
@@ -48,6 +48,7 @@ const Practice = () => {
   const [stream, setStream] = useState(null);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [recordedChunks, setRecordedChunks] = useState([]);
+  const [videoId, setVideoId] = useState(null); // ✅ videoId 상태 추가
 
   useEffect(() => {
     if (file) {
@@ -65,11 +66,17 @@ const Practice = () => {
 
   const uploadVideo = async (videoBlob) => {
     try {
-      await uploadPracticeVideo({
+      const response = await uploadPracticeVideo({
         videoBlob,
         videoTitle,
         type,
       });
+
+      if (response.videoId) {
+        setVideoId(response.videoId); // ✅ 저장
+      } else {
+        console.warn("⚠️ 응답에 videoId 없음");
+      }
     } catch (err) {
       console.error("❌ 영상 업로드 실패:", err);
     }
@@ -83,8 +90,8 @@ const Practice = () => {
 
     if (!stream) return;
 
-    const recorder = new MediaRecorder(stream);
     const chunks = [];
+    const recorder = new MediaRecorder(stream);
 
     recorder.ondataavailable = (e) => {
       if (e.data.size > 0) chunks.push(e.data);
@@ -92,7 +99,7 @@ const Practice = () => {
 
     recorder.onstop = () => {
       const blob = new Blob(chunks, { type: "video/webm" });
-      uploadVideo(blob); // ✅ 브라우저 저장 없이 서버 업로드만
+      uploadVideo(blob);
     };
 
     recorder.start();
@@ -143,6 +150,7 @@ const Practice = () => {
               type={type}
               resumeId={resumeId}
               speechId={speechId}
+              videoId={videoId} // ✅ videoId 전달
             />
           </ModalOverlay>
         )}

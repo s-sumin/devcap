@@ -69,7 +69,7 @@ const AnswerButton = styled.button`
 `;
 
 
-const PracFinish = ({ videoTitle, file, type, resumeId, speechId }) => {
+const PracFinish = ({ videoTitle, file, type, resumeId, speechId, videoId }) => {
 
   const [selected, setSelected] = useState(null);
   const navigate = useNavigate();
@@ -84,9 +84,10 @@ const PracFinish = ({ videoTitle, file, type, resumeId, speechId }) => {
           state: {
             videoTitle,
             file,
-            type,
-            resumeId,
+            type: "speech",
+            //resumeId,
             speechId,
+            videoId,
           },
         });
       } else {

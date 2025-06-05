@@ -7,7 +7,8 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Practice from "./pages/Practice.jsx";
 import Question from "./pages/Question.jsx";
-import Review from "./pages/Review.jsx";
+import ReviewR from "./pages/ReviewR.jsx";
+import ReviewS from "./pages/ReviewS.jsx";
 
 function App() {
   return (
@@ -19,7 +20,8 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/practice" element={<Practice />} />
         <Route path="/question" element={<Question />} />
-        <Route path="/review" element={<Review />} />
+        <Route path="/reviewr" element={<ReviewR />} />
+        <Route path="/reviews" element={<ReviewS />} />
 
       </Routes>
     </Router>

@@ -1,4 +1,3 @@
-// ✅ QuestionPanel.jsx
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Loading from "../Loading";
@@ -70,7 +69,10 @@ const QuestionPanel = ({
   setIsCountingDown,
   videoTitle,
   type,
-  webcamStream
+  webcamStream,
+  resumeId,    // ✅ 추가
+  speechId,     // ✅ 추가
+  practiceVideoId // ✅ 추가
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
@@ -79,7 +81,7 @@ const QuestionPanel = ({
   const countdownRef = useRef(0);
   const [recorder, setRecorder] = useState(null);
   const [showLoading, setShowLoading] = useState(false);
-  const navigate = useNavigate(); // ✅ 페이지 이동용
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isRunning) {
@@ -108,22 +110,6 @@ const QuestionPanel = ({
     return () => clearInterval(timer);
   }, [countdown, onCountdownEnd, setCountdown, setIsCountingDown]);
 
-  // ✅ showLoading 상태가 true일 때 10초 후 review 페이지로 이동
-  useEffect(() => {
-    if (showLoading) {
-      const timer = setTimeout(() => {
-        navigate("/review", {
-          state: {
-            videoTitle,
-            type,
-          },
-        });
-      }, 10000); // 10초 후 이동
-
-      return () => clearTimeout(timer);
-    }
-  }, [showLoading, navigate, videoTitle, type]);
-
   const startRecording = async () => {
     if (!webcamStream) {
       alert("웹캠 스트림이 존재하지 않습니다.");
@@ -138,16 +124,42 @@ const QuestionPanel = ({
     mediaRecorder.onstop = async () => {
       const blob = new Blob(chunks, { type: "video/webm" });
       setShowLoading(true);
+
       try {
         if (type === "interview") {
-          await uploadResumeVideo({ videoBlob: blob, videoTitle });
+          // ✅ 면접: 녹화 → 업로드 → 리뷰 이동
+          const response = await uploadResumeVideo({ videoBlob: blob, videoTitle });
+          const videoId = response?.videoId;
+
+          if (!videoId) {
+            console.warn("⚠️ 업로드 응답에 videoId 없음");
+            return;
+          }
+
+          navigate("/reviewR", {
+            state: { videoId, videoTitle, type },
+          });
+
         } else {
-          await uploadAnswerVideo({ videoBlob: blob, videoTitle });
+          // ✅ 발표: 업로드 결과 무시 → practiceVideoId만 넘김
+          console.log("📦 발표 상황: 영상은 업로드되지만 리뷰에는 practiceVideoId 사용");
+          await uploadAnswerVideo({ videoBlob: blob, videoTitle }); // 업로드는 하되 무시
+
+          if (practiceVideoId) {
+            navigate("/reviewS", {
+              state: { videoId: practiceVideoId, videoTitle, type },
+            });
+          } else {
+            console.warn("❌ practiceVideoId 없음 → 리뷰 페이지 이동 실패");
+          }
         }
+
       } catch (err) {
         console.error("❌ 영상 업로드 실패:", err);
       }
     };
+
+
 
     mediaRecorder.start();
     setRecorder(mediaRecorder);
