@@ -9,6 +9,7 @@ import Practice from "./pages/Practice.jsx";
 import Question from "./pages/Question.jsx";
 import ReviewR from "./pages/ReviewR.jsx";
 import ReviewS from "./pages/ReviewS.jsx";
+import TotalReview from "./pages/TotalReview.jsx";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/question" element={<Question />} />
         <Route path="/reviewr" element={<ReviewR />} />
         <Route path="/reviews" element={<ReviewS />} />
+        <Route path="/totalreview" element={<TotalReview />} />
 
       </Routes>
     </Router>

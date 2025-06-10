@@ -9,6 +9,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.9.0",
     "date-fns": "^4.1.0",
+    "hls.js": "^1.6.5",
     "mammoth": "^1.9.1",
     "pdfjs-dist": "^5.3.31",
     "react": "^19.1.0",

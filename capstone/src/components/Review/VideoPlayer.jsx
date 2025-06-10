@@ -1,14 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Hls from "hls.js";
 import axios from "axios";
 
 const VideoWrapper = styled.div`
   display: flex;
-  width: 80%;
+  width: 60%;
   margin-top: 50px;
-  margin-left: 50px;
-  border: 1px solid #000;
+  margin-left: 35px;
 `;
 
 const VideoContainer = styled.div`
@@ -21,49 +20,39 @@ const VideoContainer = styled.div`
   box-sizing: border-box;
 `;
 
-const VideoPlayer = ({ videoId, videoType }) => {
-  const videoRef = useRef(null);
+const VideoPlayer = ({ videoId, videoType, videoRef }) => {
   const [hlsUrl, setHlsUrl] = useState(null);
 
   useEffect(() => {
     if (!videoId) {
-      console.warn("⛔ videoId가 없습니다.");
+      const testHls =
+        "https://d1fnub9nr40wo8.cloudfront.net/output/8381fae3-8e45-4b91-bf52-8c6d1b72051d/Default/HLS/8381fae3-8e45-4b91-bf52-8c6d1b72051d.m3u8";
+      console.log("🧪 테스트용 HLS URL로 대체됨");
+      setHlsUrl(testHls);
       return;
     }
 
-    let retryCount = 0;
-    const maxRetries = 5;
-    const interval = 3000;
-
     const fetchHlsUrl = async () => {
       try {
-        console.log("📡 [VideoPlayer] HLS 상태 요청:", videoId);
+        console.log("📡 [VideoPlayer] HLS URL 요청:", videoId);
         const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/videos/status/${videoId}`
+          `${process.env.REACT_APP_API_URL}/api/videos/geturl/${videoId}`
         );
 
         const hls =
           response.data.hlsStreamUrl ||
           response.data.hls_url ||
-          response.data.hlsUrl;
+          response.data.hlsUrl ||
+          response.data.url;
 
         if (hls) {
           console.log("✅ [VideoPlayer] HLS URL 가져옴:", hls);
           setHlsUrl(hls);
         } else {
-          console.warn(
-            `⚠️ [VideoPlayer] HLS 미완료 (${retryCount + 1}/${maxRetries}):`,
-            response.data.message
-          );
-          if (retryCount < maxRetries) {
-            retryCount++;
-            setTimeout(fetchHlsUrl, interval);
-          } else {
-            console.error("❌ 최대 재시도 횟수 도달. HLS 변환 실패로 간주.");
-          }
+          console.warn("⚠️ [VideoPlayer] 응답에 HLS URL이 없습니다:", response.data);
         }
       } catch (err) {
-        console.error("❌ [VideoPlayer] HLS 상태 요청 실패:", err);
+        console.error("❌ [VideoPlayer] HLS URL 요청 실패:", err);
       }
     };
 
@@ -71,7 +60,7 @@ const VideoPlayer = ({ videoId, videoType }) => {
   }, [videoId]);
 
   useEffect(() => {
-    if (!hlsUrl || !videoRef.current) return;
+    if (!hlsUrl || !videoRef?.current) return;
 
     const video = videoRef.current;
 
@@ -86,7 +75,7 @@ const VideoPlayer = ({ videoId, videoType }) => {
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = hlsUrl;
     }
-  }, [hlsUrl]);
+  }, [hlsUrl, videoRef]);
 
   return (
     <VideoWrapper>
