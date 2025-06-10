@@ -39,26 +39,22 @@ const ModalOverlay = styled.div`
 
 const Practice = () => {
   const location = useLocation();
-  const { file, type, resumeId, speechId } = location.state || {};
+  const {
+    file,
+    type,
+    resumeId,
+    speechId,
+    scriptText: initialScriptText, // ✅ 전달받은 scriptText
+  } = location.state || {};
 
-  const [scriptText, setScriptText] = useState("");
+  const [scriptText, setScriptText] = useState(initialScriptText || "");
   const [isBlurred, setIsBlurred] = useState(false);
   const [showFinishModal, setShowFinishModal] = useState(false);
   const [videoTitle, setVideoTitle] = useState("");
   const [stream, setStream] = useState(null);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [recordedChunks, setRecordedChunks] = useState([]);
-  const [videoId, setVideoId] = useState(null); // ✅ videoId 상태 추가
-
-  useEffect(() => {
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setScriptText(e.target.result);
-      };
-      reader.readAsText(file);
-    }
-  }, [file]);
+  const [videoId, setVideoId] = useState(null);
 
   const handleStreamReady = (incomingStream) => {
     setStream(incomingStream);
@@ -73,7 +69,7 @@ const Practice = () => {
       });
 
       if (response.videoId) {
-        setVideoId(response.videoId); // ✅ 저장
+        setVideoId(response.videoId);
       } else {
         console.warn("⚠️ 응답에 videoId 없음");
       }
@@ -150,7 +146,7 @@ const Practice = () => {
               type={type}
               resumeId={resumeId}
               speechId={speechId}
-              videoId={videoId} // ✅ videoId 전달
+              videoId={videoId}
             />
           </ModalOverlay>
         )}

@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { uploadResumeScript, uploadSpeechScript } from '../api/scriptApi';
+
 import mammoth from "mammoth";
 import * as pdfjsLib from "pdfjs-dist";
 
@@ -138,6 +139,8 @@ const Uploadbox = () => {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedType, setSelectedType] = useState(null);
+  const [scriptText, setScriptText] = useState("");
+
   const navigate = useNavigate();
 
   const handleUploadBoxClick = () => {
@@ -158,7 +161,7 @@ const Uploadbox = () => {
     reader.onload = (e) => {
       const text = e.target.result;
       console.log("📄 TXT 내용:", text);
-      // setScriptText(text);
+       setScriptText(text);
     };
     reader.readAsText(file);
   }
@@ -167,7 +170,7 @@ const Uploadbox = () => {
     const arrayBuffer = await file.arrayBuffer();
     const result = await mammoth.extractRawText({ arrayBuffer });
     console.log("📄 DOCX 내용:", result.value);
-    // setScriptText(result.value);
+    setScriptText(result.value);
   }
 
   else if (fileExt === "pdf") {
@@ -183,7 +186,7 @@ const Uploadbox = () => {
     }
 
     console.log("📄 PDF 내용:", fullText);
-    // setScriptText(fullText);
+     setScriptText(fullText);
   }
 
   else if (fileExt === "hwp") {
@@ -219,6 +222,7 @@ const handleFinalNavigate = async () => {
       userId: 1, // TODO: 로그인된 유저 ID로 교체
       title: uploadedFile.name,
       file: uploadedFile,
+      scripts: scriptText,
     };
 
     let response;
@@ -226,6 +230,7 @@ const handleFinalNavigate = async () => {
       file: uploadedFile,
       type: selectedType,
       videoTitle: uploadedFile.name,
+      scriptText: scriptText,
     };
 
     if (selectedType === "interview") {
