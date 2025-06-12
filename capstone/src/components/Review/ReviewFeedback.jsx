@@ -16,7 +16,6 @@ const Container = styled.div`
 const SummaryTitle = styled.h3`
   font-size: 28px;
   font-weight: 600;
-  margin-top:-20px;
   margin-bottom: 10px;
 `;
 

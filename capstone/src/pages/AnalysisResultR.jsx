@@ -26,31 +26,34 @@ const ResultBox = styled.div`
 
 const AnalysisResultR = () => {
   const { state } = useLocation();
-  const { analysisId, type } = state || {}; // type: 'interview'
+  const { analysisId } = state || {};
 
   const [content, setContent] = useState("");
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    if (!analysisId || type !== "interview") {
-      console.warn("⛔ analysisId 또는 타입 오류:", { analysisId, type });
+    if (!analysisId) {
+      console.warn("⛔ analysisId 누락:", analysisId);
       setError(true);
       return;
     }
 
-    axiosInstance
-      .get("/api/report/detail/interview", {
-        params: { id: analysisId },
-      })
-      .then((res) => {
-        const result = res.data.feedback || res.data.result || "분석 결과 없음";
+    const fetchAnalysisResult = async () => {
+      try {
+        const response = await axiosInstance.get("/api/report/detail/interview", {
+          params: { id: analysisId },
+        });
+
+        const result = response.data.feedback || response.data.result || "분석 결과 없음";
         setContent(result);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("❌ 면접 분석 결과 불러오기 실패:", err);
         setError(true);
-      });
-  }, [analysisId, type]);
+      }
+    };
+
+    fetchAnalysisResult();
+  }, [analysisId]);
 
   return (
     <Layout>

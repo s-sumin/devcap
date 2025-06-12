@@ -66,7 +66,6 @@ const TotalReviewButton = styled.button`
   }
 `;
 
-
 const ReviewR = () => {
   const location = useLocation();
   const navigate = useNavigate();

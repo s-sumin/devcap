@@ -26,7 +26,7 @@ const ResultBox = styled.div`
 
 const AnalysisResultS = () => {
   const { state } = useLocation();
-  const { analysisId } = state || {}; // ✅ 이제 type은 필요 없음
+  const { analysisId } = state || {};
 
   const [content, setContent] = useState("");
   const [error, setError] = useState(false);
@@ -40,13 +40,8 @@ const AnalysisResultS = () => {
 
     const fetchAnalysisResult = async () => {
       try {
-        const formData = new FormData();
-        formData.append("id", analysisId); // ✅ FormData로 id 전송
-
-        const response = await axiosInstance.post("/api/report/detail/speech", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+        const response = await axiosInstance.get("/api/report/detail/speech", {
+          params: { id: analysisId }, // ✅ GET 방식으로 쿼리 전달
         });
 
         const result = response.data.feedback || response.data.result || "분석 결과 없음";

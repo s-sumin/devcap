@@ -5,7 +5,23 @@ import { FaCheck } from "react-icons/fa";
 const Wrapper = styled.div`
   margin-top: 20px;
 `;
+const ScrollContainer = styled.div`
+  max-height: 700px; /* ✅ 필요에 따라 조절 가능 */
+  overflow-y: auto;
+  padding-right: 10px;
 
+  /* 스크롤바 스타일 (선택사항) */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 10px;
+  }
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+`;
 const List = styled.ul`
   display: flex;
   flex-direction: column;
@@ -16,9 +32,12 @@ const Item = styled.li`
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  font-size: 16px;
+  font-size: 22px;
   color: #333;
   line-height: 1.6;
+  white-space: pre-wrap; /* ✅ 줄바꿈 보존 */
+  margin-top: -45px;
+  margin-left:-30px;
 `;
 
 const CheckIcon = styled(FaCheck)`
@@ -42,16 +61,18 @@ const ReviewFeedbackList = ({ feedbacks }) => {
     );
   }
 
-  return (
+   return (
     <Wrapper>
-      <List>
-        {feedbacks.map((item, idx) => (
-          <Item key={idx}>
-            <CheckIcon />
-            {item}
-          </Item>
-        ))}
-      </List>
+      <ScrollContainer>
+        <List>
+          {feedbacks.map((item, idx) => (
+            <Item key={idx}>
+              <CheckIcon />
+              {item}
+            </Item>
+          ))}
+        </List>
+      </ScrollContainer>
     </Wrapper>
   );
 };
