@@ -4,7 +4,8 @@ import Layout from "../components/Layout";
 import Header from "../components/Header";
 import ReviewFeedbackList from "../components/TotalReview/ReviewFeedbackList";
 import ButtonSection from "../components/TotalReview/ButtonSection";
-import axios from "axios";
+import { useLocation } from "react-router-dom";
+import { fetchDetailedReport } from "../api/detailReportApi";
 
 const Container = styled.div`
   width: 1600px;
@@ -32,14 +33,23 @@ const Message = styled.div`
 `;
 
 const TotalReview = () => {
+  const location = useLocation();
+  const { id, type } = location.state || {};
+
   const [feedbackData, setFeedbackData] = useState(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     const fetchFeedback = async () => {
+      if (!id || !type) {
+        console.warn("⛔ id 또는 type이 전달되지 않았습니다.", { id, type });
+        setError(true);
+        return;
+      }
+
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/review/total`);
-        setFeedbackData(response.data);
+        const result = await fetchDetailedReport({ id, type });
+        setFeedbackData(result);
       } catch (err) {
         console.error("❌ 서버 요청 실패:", err);
         setError(true);
@@ -47,7 +57,7 @@ const TotalReview = () => {
     };
 
     fetchFeedback();
-  }, []);
+  }, [id, type]);
 
   return (
     <Layout>
@@ -62,7 +72,7 @@ const TotalReview = () => {
           <Message>로딩 중입니다...</Message>
         ) : (
           <>
-            <Title>{feedbackData.videoTitle}의 종합 분석 결과</Title>
+            <Title>{feedbackData.title}의 종합 분석 결과</Title>
             <ReviewFeedbackList feedbacks={feedbackData.feedbacks || []} />
           </>
         )}

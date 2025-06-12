@@ -28,7 +28,7 @@ function App() {
         <Route path="/question" element={<Question />} />
         <Route path="/reviewr" element={<ReviewR />} />
         <Route path="/reviews" element={<ReviewS />} />
-        <Route path="/totalReview/:analysisId" element={<TotalReview />} />
+        <Route path="/totalReview" element={<TotalReview />} />
 
       </Routes>
     </Router>

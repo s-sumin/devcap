@@ -6,81 +6,177 @@ import Layout from "../components/Layout";
 import Header from "../components/Header";
 import VideoPlayer from "../components/Review/VideoPlayer";
 import ReviewFeedback from "../components/Review/ReviewFeedback";
-import { fetchReviewFeedback } from "../api/reviewApi"; // ✅ 추가
+import { fetchReviewFeedback } from "../api/reviewApi";
 
-const Row = styled.div`
+const Container = styled.div`
+  padding: 30px 80px;
+`;
+
+const TopSection = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 50px;
-  margin: 20px auto auto 35px;
+  margin-bottom: 60px;
+`;
+
+const VideoBox = styled.div`
+  width: 700px;
+  height: 400px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+  background: #000;
+`;
+
+const InfoBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+`;
+
+const Title = styled.h2`
+  font-size: 26px;
+  font-weight: bold;
+  color: #222;
+`;
+
+const Date = styled.p`
+  font-size: 18px;
+  color: #666;
 `;
 
 const TotalReviewButton = styled.button`
-  width: 353px;
-  height: 70px;
-  padding: 0 20px;
+  width: 220px;
+  height: 50px;
   background: #8321FF;
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   font-weight: 500;
-  cursor: pointer;
   font-family: Pretendard;
-  font-size: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 240px;
-  margin-top: 380px;
+  font-size: 18px;
+  cursor: pointer;
+  margin-top: 10px;
 
   &:hover {
     background: #6f1edc;
   }
 `;
 
+const FeedbackSummaryBox = styled.div`
+  width: 90%;
+  margin: 0 auto 30px;
+  border-radius: 20px;
+  background: #f7f1ff;
+  border: 2px solid #8e48e8;
+  padding: 30px 40px;
+`;
+
+const SummaryTitle = styled.h3`
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 10px;
+`;
+
+const SummaryList = styled.ul`
+  padding-left: 20px;
+  font-size: 17px;
+  color: #444;
+  line-height: 1.7;
+`;
+
+const SummaryItem = styled.li`
+  margin-bottom: 6px;
+`;
+
 const ReviewR = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { videoId, videoTitle } = location.state || {};
+  const {
+    resumeId,     // ✅ videoId 대신 resumeId로 받음
+    videoTitle,
+    type = "resume",
+  } = location.state || {};
+
   const videoRef = useRef(null);
   const [feedbackData, setFeedbackData] = useState([]);
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [title, setTitle] = useState("");
+  const [date, setDate] = useState("");
+  const [hlsUrl, setHlsUrl] = useState("");
 
   useEffect(() => {
-    console.log("🎬 [ReviewR] 영상 정보 확인");
-    console.log("📦 videoId:", videoId);
-    console.log("📦 videoType:", "resume");
+    console.log("🚀 useEffect 진입");
+    console.log("🧾 전달된 props:", { resumeId, type });
 
     const loadFeedback = async () => {
       try {
-        const data = await fetchReviewFeedback({ videoId, type: "resume" });
-        console.log("📝 불러온 피드백 데이터:", data);
-        setFeedbackData(data);
-      } catch (error) {
-        console.warn("⚠️ 피드백 데이터를 불러오지 못했습니다.");
+        console.log("📡 fetchReviewFeedback 호출");
+        const result = await fetchReviewFeedback({ id: resumeId, type });
+        console.log("✅ [ReviewR] 응답:", result);
+
+        setTitle(result.title);
+        setDate(result.date);
+        setFeedbackData(result.feedbackData || []);
+        setFeedbacks(result.feedbacks || []);
+        setHlsUrl(result.hlsUrl || "");
+      } catch (err) {
+        console.warn("⚠️ 리뷰 피드백 로딩 실패:", err);
+        setTitle(videoTitle || "제목 없음");
+        setDate("날짜 없음");
       }
     };
 
-    if (videoId) {
+    if (resumeId && type) {
       loadFeedback();
     }
-  }, [videoId]);
+  }, [resumeId, type, videoTitle]);
 
   const handleNavigateToTotal = () => {
     navigate("/totalreview", {
-      state: { videoId, videoTitle, type: "resume" }, // ⛔️ type이 "speech"로 되어 있음. "resume"으로 바꿔야 할 수도 있음
+      state: { id: resumeId, videoTitle, type },
     });
   };
 
   return (
     <Layout>
       <Header />
-      <Row>
-        <VideoPlayer videoId={videoId} videoType="resume" videoRef={videoRef} />
-        <TotalReviewButton onClick={handleNavigateToTotal}>
-          면접 종합 분석 보기 <span style={{ marginLeft: "8px" }}>→</span>
-        </TotalReviewButton>
-      </Row>
-      <ReviewFeedback videoRef={videoRef} feedbackData={feedbackData} />
+      <Container>
+        <TopSection>
+          <VideoBox>
+            <VideoPlayer
+              hlsUrl={hlsUrl}
+              videoId={resumeId}
+              videoType={type}
+              videoRef={videoRef}
+            />
+          </VideoBox>
+
+          <InfoBox>
+            <Title>{title || "영상 제목"}</Title>
+            <Date>{date || "날짜 없음"}</Date>
+            <TotalReviewButton onClick={handleNavigateToTotal}>
+              종합 분석 보기 →
+            </TotalReviewButton>
+          </InfoBox>
+        </TopSection>
+
+        {feedbacks.length > 0 && (
+          <FeedbackSummaryBox>
+            <SummaryTitle>종합 피드백</SummaryTitle>
+            <SummaryList>
+              {feedbacks.map((line, idx) => (
+                <SummaryItem key={idx}>{line}</SummaryItem>
+              ))}
+            </SummaryList>
+          </FeedbackSummaryBox>
+        )}
+
+        {feedbackData.length > 0 && (
+          <ReviewFeedback videoRef={videoRef} feedbackData={feedbackData} />
+        )}
+      </Container>
     </Layout>
   );
 };

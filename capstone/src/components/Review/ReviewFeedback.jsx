@@ -1,4 +1,3 @@
-// src/components/Review/ReviewFeedback.jsx
 import React from 'react';
 import styled from 'styled-components';
 import { FaMapPin } from 'react-icons/fa';
@@ -10,6 +9,10 @@ const Container = styled.div`
   border: 2px solid #8E48E8;
   background: #F7F1FF;
   padding: 30px 40px;
+`;
+
+const TimelineWrapper = styled.div`
+  margin-top: 40px;
   position: relative;
 `;
 
@@ -18,7 +21,6 @@ const Timeline = styled.div`
   height: 12px;
   background: #d8c4ff;
   border-radius: 10px;
-  margin-bottom: 30px;
 `;
 
 const Pin = styled(FaMapPin)`
@@ -50,12 +52,12 @@ const Timestamp = styled.div`
   font-weight: 600;
   padding: 6px 12px;
   border-radius: 10px;
-  margin-bottom: 15px;
+  margin: 0 0 10px 0;
   font-size: 14px;
 `;
 
 const FeedbackList = styled.ul`
-  margin-top: 10px;
+  margin-top: 0;
   padding-left: 18px;
   font-size: 17px;
   color: #333;
@@ -74,31 +76,34 @@ const ReviewFeedback = ({ videoRef, feedbackData = [] }) => {
     }
   };
 
-  if (!feedbackData.length) return null;
+  if (!Array.isArray(feedbackData) || feedbackData.length === 0) return null;
 
   return (
     <Container>
-      <Timeline>
-        {feedbackData.map((feedback, index) => (
-          <Pin
-            key={index}
-            style={{ left: feedback.left }}
-            data-time={feedback.timeLabel}
-            onClick={() => handlePinClick(feedback.seconds)}
-          />
-        ))}
-      </Timeline>
-
       {feedbackData.map((feedback, index) => (
         <div key={index} style={{ marginBottom: '24px' }}>
           <Timestamp>{feedback.timeLabel}</Timestamp>
           <FeedbackList>
-            {feedback.comments.map((text, idx) => (
-              <FeedbackContent key={idx}>{text}</FeedbackContent>
-            ))}
+            {Array.isArray(feedback.comments) &&
+              feedback.comments.map((text, idx) => (
+                <FeedbackContent key={idx}>{text}</FeedbackContent>
+              ))}
           </FeedbackList>
         </div>
       ))}
+
+      <TimelineWrapper>
+        <Timeline>
+          {feedbackData.map((feedback, index) => (
+            <Pin
+              key={index}
+              style={{ left: feedback.left }}
+              data-time={feedback.timeLabel}
+              onClick={() => handlePinClick(feedback.seconds)}
+            />
+          ))}
+        </Timeline>
+      </TimelineWrapper>
     </Container>
   );
 };

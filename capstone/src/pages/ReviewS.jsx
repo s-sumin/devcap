@@ -116,6 +116,7 @@ const ReviewS = () => {
         const result = await fetchReviewFeedback({ id: speechId, type });
         console.log("✅ fetchReviewFeedback 응답:", result);
 
+        
         setTitle(result.title);
         setDate(result.date);
         setFeedbackData(result.feedbackData || []);

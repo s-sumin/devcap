@@ -154,7 +154,7 @@ const QuestionPanel = ({
           }
 
           navigate("/reviewR", {
-            state: { videoId, videoTitle, type },
+            state: { resumeId, videoTitle, type },
           });
         } else {
           console.log("📦 발표 상황: 영상은 업로드되지만 리뷰에는 practiceVideoId 사용");
