@@ -36,59 +36,36 @@ const InfoBox = styled.div`
 `;
 
 const Title = styled.h2`
-  font-size: 26px;
+  font-size: 50px;
   font-weight: bold;
   color: #222;
 `;
 
 const Date = styled.p`
-  font-size: 18px;
+  font-size: 30px;
   color: #666;
+  margin-top: -20px;
 `;
 
 const TotalReviewButton = styled.button`
-  width: 220px;
-  height: 50px;
+  width: 280px;
+  height: 70px;
   background: #8321FF;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   font-weight: 500;
   font-family: Pretendard;
-  font-size: 18px;
+  font-size: 28px;
   cursor: pointer;
-  margin-top: 10px;
+  margin-top: 100px;
+  margin-left: 725px;
 
   &:hover {
     background: #6f1edc;
   }
 `;
 
-const FeedbackSummaryBox = styled.div`
-  width: 90%;
-  margin: 0 auto 30px;
-  border-radius: 20px;
-  background: #f7f1ff;
-  border: 2px solid #8e48e8;
-  padding: 30px 40px;
-`;
-
-const SummaryTitle = styled.h3`
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 10px;
-`;
-
-const SummaryList = styled.ul`
-  padding-left: 20px;
-  font-size: 17px;
-  color: #444;
-  line-height: 1.7;
-`;
-
-const SummaryItem = styled.li`
-  margin-bottom: 6px;
-`;
 
 const ReviewR = () => {
   const location = useLocation();
@@ -107,12 +84,8 @@ const ReviewR = () => {
   const [hlsUrl, setHlsUrl] = useState("");
 
   useEffect(() => {
-    console.log("🚀 useEffect 진입");
-    console.log("🧾 전달된 props:", { resumeId, type });
-
     const loadFeedback = async () => {
       try {
-        console.log("📡 fetchReviewFeedback 호출");
         const result = await fetchReviewFeedback({ id: resumeId, type });
         console.log("✅ [ReviewR] 응답:", result);
 
@@ -162,19 +135,12 @@ const ReviewR = () => {
           </InfoBox>
         </TopSection>
 
-        {feedbacks.length > 0 && (
-          <FeedbackSummaryBox>
-            <SummaryTitle>종합 피드백</SummaryTitle>
-            <SummaryList>
-              {feedbacks.map((line, idx) => (
-                <SummaryItem key={idx}>{line}</SummaryItem>
-              ))}
-            </SummaryList>
-          </FeedbackSummaryBox>
-        )}
-
-        {feedbackData.length > 0 && (
-          <ReviewFeedback videoRef={videoRef} feedbackData={feedbackData} />
+        {(feedbacks.length > 0 || feedbackData.length > 0) && (
+          <ReviewFeedback
+            videoRef={videoRef}
+            feedbackData={feedbackData}
+            feedbacks={feedbacks}
+          />
         )}
       </Container>
     </Layout>

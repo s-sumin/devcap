@@ -1,14 +1,59 @@
+// src/components/Review/ReviewFeedback.jsx
 import React from 'react';
 import styled from 'styled-components';
 import { FaMapPin } from 'react-icons/fa';
 
 const Container = styled.div`
-  width: 90%;
-  margin: 50px auto;
+  width: 95%;
+  height :400px;
+  margin: -20px auto 50px;
   border-radius: 30px;
   border: 2px solid #8E48E8;
   background: #F7F1FF;
   padding: 30px 40px;
+`;
+
+const SummaryTitle = styled.h3`
+  font-size: 28px;
+  font-weight: 600;
+  margin-top:-20px;
+  margin-bottom: 10px;
+`;
+
+const SummaryList = styled.ul`
+  padding-left: 20px;
+  font-size: 25px;
+  color: #444;
+  line-height: 1.7;
+  margin-bottom: 30px;
+`;
+
+const SummaryItem = styled.li`
+  margin-bottom: 6px;
+`;
+
+const Timestamp = styled.div`
+  display: inline-block;
+  background: #8321ff;
+  color: white;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 10px;
+  margin: 0 0 10px 0;
+  font-size: 15px;
+  margin-top: 10px;
+`;
+
+const FeedbackList = styled.ul`
+  margin-top: 0;
+  padding-left: 18px;
+  font-size: 17px;
+  color: #333;
+  line-height: 1.7;
+`;
+
+const FeedbackContent = styled.li`
+  margin-bottom: 8px;
 `;
 
 const TimelineWrapper = styled.div`
@@ -18,7 +63,8 @@ const TimelineWrapper = styled.div`
 
 const Timeline = styled.div`
   position: relative;
-  height: 12px;
+  margin-top:-30px;
+  height: 8px;
   background: #d8c4ff;
   border-radius: 10px;
 `;
@@ -45,30 +91,7 @@ const Pin = styled(FaMapPin)`
   }
 `;
 
-const Timestamp = styled.div`
-  display: inline-block;
-  background: #8321ff;
-  color: white;
-  font-weight: 600;
-  padding: 6px 12px;
-  border-radius: 10px;
-  margin: 0 0 10px 0;
-  font-size: 14px;
-`;
-
-const FeedbackList = styled.ul`
-  margin-top: 0;
-  padding-left: 18px;
-  font-size: 17px;
-  color: #333;
-  line-height: 1.7;
-`;
-
-const FeedbackContent = styled.li`
-  margin-bottom: 8px;
-`;
-
-const ReviewFeedback = ({ videoRef, feedbackData = [] }) => {
+const ReviewFeedback = ({ videoRef, feedbackData = [], feedbacks = [] }) => {
   const handlePinClick = (seconds) => {
     if (videoRef?.current) {
       videoRef.current.currentTime = seconds;
@@ -76,22 +99,11 @@ const ReviewFeedback = ({ videoRef, feedbackData = [] }) => {
     }
   };
 
-  if (!Array.isArray(feedbackData) || feedbackData.length === 0) return null;
+  if (!Array.isArray(feedbackData)) return null;
 
   return (
     <Container>
-      {feedbackData.map((feedback, index) => (
-        <div key={index} style={{ marginBottom: '24px' }}>
-          <Timestamp>{feedback.timeLabel}</Timestamp>
-          <FeedbackList>
-            {Array.isArray(feedback.comments) &&
-              feedback.comments.map((text, idx) => (
-                <FeedbackContent key={idx}>{text}</FeedbackContent>
-              ))}
-          </FeedbackList>
-        </div>
-      ))}
-
+      {/* 타임라인 */}
       <TimelineWrapper>
         <Timeline>
           {feedbackData.map((feedback, index) => (
@@ -104,6 +116,33 @@ const ReviewFeedback = ({ videoRef, feedbackData = [] }) => {
           ))}
         </Timeline>
       </TimelineWrapper>
+
+      {/* 타임스탬프 피드백 */}
+      {feedbackData.map((feedback, index) => (
+        <div key={index} style={{ marginBottom: '24px' }}>
+          <Timestamp>{feedback.timeLabel}</Timestamp>
+          <FeedbackList>
+            {Array.isArray(feedback.comments) &&
+              feedback.comments.map((text, idx) => (
+                <FeedbackContent key={idx}>{text}</FeedbackContent>
+              ))}
+          </FeedbackList>
+        </div>
+      ))}
+
+      {/* 종합 피드백 */}
+      {feedbacks.length > 0 && (
+        <>
+          <SummaryTitle>시간별 피드백</SummaryTitle>
+          <SummaryList>
+            {feedbacks.map((line, idx) => (
+              <SummaryItem key={idx}>{line}</SummaryItem>
+            ))}
+          </SummaryList>
+        </>
+      )}
+      
+      
     </Container>
   );
 };
