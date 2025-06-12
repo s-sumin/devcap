@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Hls from "hls.js";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance"; // ✅ 수정된 부분
 
 const VideoWrapper = styled.div`
   display: flex;
-  width: 60%;
-  margin-top: 50px;
-  margin-left: 35px;
+
 `;
 
 const VideoContainer = styled.div`
@@ -20,47 +18,12 @@ const VideoContainer = styled.div`
   box-sizing: border-box;
 `;
 
-const VideoPlayer = ({ videoId, videoType, videoRef }) => {
-  const [hlsUrl, setHlsUrl] = useState(null);
-
+const VideoPlayer = ({ hlsUrl, videoRef }) => {
   useEffect(() => {
-    if (!videoId) {
-      const testHls =
-        "https://d1fnub9nr40wo8.cloudfront.net/output/8381fae3-8e45-4b91-bf52-8c6d1b72051d/Default/HLS/8381fae3-8e45-4b91-bf52-8c6d1b72051d.m3u8";
-      console.log("🧪 테스트용 HLS URL로 대체됨");
-      setHlsUrl(testHls);
+    if (!hlsUrl || !videoRef?.current) {
+      console.warn("⛔ [VideoPlayer] hlsUrl 없음");
       return;
     }
-
-    const fetchHlsUrl = async () => {
-      try {
-        console.log("📡 [VideoPlayer] HLS URL 요청:", videoId);
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/videos/geturl/${videoId}`
-        );
-
-        const hls =
-          response.data.hlsStreamUrl ||
-          response.data.hls_url ||
-          response.data.hlsUrl ||
-          response.data.url;
-
-        if (hls) {
-          console.log("✅ [VideoPlayer] HLS URL 가져옴:", hls);
-          setHlsUrl(hls);
-        } else {
-          console.warn("⚠️ [VideoPlayer] 응답에 HLS URL이 없습니다:", response.data);
-        }
-      } catch (err) {
-        console.error("❌ [VideoPlayer] HLS URL 요청 실패:", err);
-      }
-    };
-
-    fetchHlsUrl();
-  }, [videoId]);
-
-  useEffect(() => {
-    if (!hlsUrl || !videoRef?.current) return;
 
     const video = videoRef.current;
 
@@ -69,11 +32,11 @@ const VideoPlayer = ({ videoId, videoType, videoRef }) => {
       hls.loadSource(hlsUrl);
       hls.attachMedia(video);
 
-      return () => {
-        hls.destroy();
-      };
+      return () => hls.destroy();
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = hlsUrl;
+    } else {
+      console.warn("❌ [VideoPlayer] HLS 미지원 브라우저입니다.");
     }
   }, [hlsUrl, videoRef]);
 
@@ -86,10 +49,12 @@ const VideoPlayer = ({ videoId, videoType, videoRef }) => {
           height="100%"
           controls
           playsInline
+          muted
         />
       </VideoContainer>
     </VideoWrapper>
   );
 };
+
 
 export default VideoPlayer;

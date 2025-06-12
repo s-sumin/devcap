@@ -1,27 +1,18 @@
-// ✅ videoApi.js 수정: 영상 저장 타입에 따라 업로드 분기 추가
-import axios from "axios";
+// src/api/videoApi.js
+import axiosInstance from "./axiosInstance";
 
-const API = process.env.REACT_APP_API_URL;
-
-const getToken = () => {
-  const token = localStorage.getItem("accessToken");
-  if (!token) throw new Error("❌ accessToken이 없습니다. 로그인이 필요합니다.");
-  return token;
-};
-
-const uploadVideo = async ({ videoBlob, videoTitle, saveType }) => {
-  const token = getToken();
+// ✅ 공통 업로드 함수
+const uploadVideo = async ({ videoBlob, videoTitle, saveType, id }) => {
   const formData = new FormData();
-
   formData.append("file", videoBlob, `${videoTitle || "recording"}.webm`);
   formData.append("type", saveType); // resume, speech, answer 중 하나
+  formData.append("id", id);         // ✅ id 포함
 
   try {
-    const res = await axios.post(`${API}/api/videos/upload`, formData, {
+    const res = await axiosInstance.post("/api/videos/upload", formData, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
       },
-      withCredentials: true,
     });
 
     console.log("✅ [uploadVideo] 업로드 성공:", res.data);
@@ -32,6 +23,12 @@ const uploadVideo = async ({ videoBlob, videoTitle, saveType }) => {
   }
 };
 
-export const uploadPracticeVideo = (args) => uploadVideo({ ...args, saveType: args.type === "interview" ? "resume" : "speech" });
-export const uploadAnswerVideo = (args) => uploadVideo({ ...args, saveType: "answer" });
-export const uploadResumeVideo = (args) => uploadVideo({ ...args, saveType: "resume" });
+// ✅ 업로드 타입별 wrapper 함수
+export const uploadPracticeVideo = (args) =>
+  uploadVideo({ ...args, saveType: args.type === "interview" ? "resume" : "speech" });
+
+export const uploadAnswerVideo = (args) =>
+  uploadVideo({ ...args, saveType: "answer" });
+
+export const uploadResumeVideo = (args) =>
+  uploadVideo({ ...args, saveType: "resume" });

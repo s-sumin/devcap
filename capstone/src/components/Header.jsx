@@ -36,8 +36,7 @@ const Nav = styled.nav`
   gap: 40px;
   align-items: center;
 
-  a, button {
-    text-decoration: none;
+  a, button, select {
     font-family: Pretendard;
     font-size: 26px;
     font-weight: 600;
@@ -45,10 +44,18 @@ const Nav = styled.nav`
     background: none;
     border: none;
     cursor: pointer;
+    text-decoration: none;
 
     &:hover {
       color: #7209b7;
     }
+  }
+
+  select {
+    padding: 4px 8px;
+    border-radius: 8px;
+    border: none;
+    font-size: 25px;
   }
 `;
 
@@ -69,13 +76,26 @@ const Header = () => {
     navigate("/login");
   };
 
+  const handleMypageChange = (e) => {
+    const value = e.target.value;
+    if (value === "resume") {
+      navigate("/mypageR");
+    } else if (value === "speech") {
+      navigate("/mypageS");
+    }
+  };
+
   return (
     <HeaderWrapper>
       <InnerContainer>
         <Logo to="/">SpiCoach</Logo>
         <Nav>
           <Link to="/">Home</Link>
-          <Link to="/mypage">My page</Link>
+          <select defaultValue="" onChange={handleMypageChange}>
+            <option value="" disabled>My Page</option>
+            <option value="resume">면접</option>
+            <option value="speech">발표</option>
+          </select>
           {isLoggedIn ? (
             <button onClick={handleLogout}>로그아웃</button>
           ) : (

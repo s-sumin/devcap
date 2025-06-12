@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 
 const Item = styled.div`
   background-color: #f3eaff;
@@ -14,7 +15,6 @@ const Item = styled.div`
 const Info = styled.div`
   font-size: 18px;
   font-weight: 600;
-
   span {
     display: block;
     color: #888;
@@ -43,17 +43,29 @@ const ButtonGroup = styled.div`
   }
 `;
 
-const VideoItem = ({ date, title }) => (
-  <Item>
-    <Info>
-      <span>{date}</span>
-      {title}
-    </Info>
-    <ButtonGroup>
-      <button>녹화 영상 보기</button>
-      <button>종합분석결과 보기</button>
-    </ButtonGroup>
-  </Item>
-);
+const VideoItem = ({ date, title, type, videoId, analysisId }) => {
+  const navigate = useNavigate();
+
+  const handleWatchClick = () => {
+    navigate(`/watch/${videoId}`, { state: { title, type } });
+  };
+
+  const handleAnalysisClick = () => {
+    navigate(`/analysis/${analysisId}`, { state: { title, type } });
+  };
+
+  return (
+    <Item>
+      <Info>
+        <span>{date}</span>
+        {title}
+      </Info>
+      <ButtonGroup>
+        <button onClick={handleWatchClick}>녹화 영상 보기</button>
+        <button onClick={handleAnalysisClick}>종합분석결과 보기</button>
+      </ButtonGroup>
+    </Item>
+  );
+};
 
 export default VideoItem;

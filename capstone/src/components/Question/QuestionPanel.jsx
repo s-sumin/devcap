@@ -70,9 +70,9 @@ const QuestionPanel = ({
   videoTitle,
   type,
   webcamStream,
-  resumeId,    // ✅ 추가
-  speechId,     // ✅ 추가
-  practiceVideoId // ✅ 추가
+  resumeId,
+  speechId,
+  practiceVideoId,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
@@ -82,6 +82,20 @@ const QuestionPanel = ({
   const [recorder, setRecorder] = useState(null);
   const [showLoading, setShowLoading] = useState(false);
   const navigate = useNavigate();
+
+  // 🟢 전달받은 질문 확인
+  useEffect(() => {
+    console.log("🟢 [QuestionPanel] 전달받은 질문 수:", questions.length);
+    console.table(questions);
+  }, [questions]);
+
+  // 🔵 currentIndex에 따른 질문 추적
+  useEffect(() => {
+    if (questions.length > 0) {
+      console.log("🔵 [QuestionPanel] currentIndex:", currentIndex);
+      console.log("🔵 [QuestionPanel] 현재 질문:", questions[currentIndex]);
+    }
+  }, [currentIndex, questions]);
 
   useEffect(() => {
     if (isRunning) {
@@ -127,8 +141,11 @@ const QuestionPanel = ({
 
       try {
         if (type === "interview") {
-          // ✅ 면접: 녹화 → 업로드 → 리뷰 이동
-          const response = await uploadResumeVideo({ videoBlob: blob, videoTitle });
+          const response = await uploadResumeVideo({
+            videoBlob: blob,
+            videoTitle,
+            id: resumeId,
+          });
           const videoId = response?.videoId;
 
           if (!videoId) {
@@ -139,11 +156,13 @@ const QuestionPanel = ({
           navigate("/reviewR", {
             state: { videoId, videoTitle, type },
           });
-
         } else {
-          // ✅ 발표: 업로드 결과 무시 → practiceVideoId만 넘김
           console.log("📦 발표 상황: 영상은 업로드되지만 리뷰에는 practiceVideoId 사용");
-          await uploadAnswerVideo({ videoBlob: blob, videoTitle }); // 업로드는 하되 무시
+          await uploadAnswerVideo({
+            videoBlob: blob,
+            videoTitle,
+            id: speechId,
+          });
 
           if (practiceVideoId) {
             navigate("/reviewS", {
@@ -153,13 +172,10 @@ const QuestionPanel = ({
             console.warn("❌ practiceVideoId 없음 → 리뷰 페이지 이동 실패");
           }
         }
-
       } catch (err) {
         console.error("❌ 영상 업로드 실패:", err);
       }
     };
-
-
 
     mediaRecorder.start();
     setRecorder(mediaRecorder);
@@ -175,9 +191,11 @@ const QuestionPanel = ({
         alert("영상 제목을 입력해주세요.");
         return;
       }
+      console.log("▶️ 녹화 시작");
       setIsRunning(true);
       startRecording();
     } else {
+      console.log("⏹ 녹화 종료");
       setIsRunning(false);
       stopRecording();
       onFinish?.();
@@ -185,12 +203,14 @@ const QuestionPanel = ({
   };
 
   const handleNext = () => {
+    console.log("➡️ [handleNext] 현재 인덱스:", currentIndex);
     if (currentIndex < questions.length - 1) {
       setCurrentIndex((i) => i + 1);
       setCountdown(3);
       setIsCountingDown(true);
       onCountdownStart?.();
     } else {
+      console.log("❗ 마지막 질문 도달");
       alert("마지막 질문입니다.");
     }
   };
@@ -210,7 +230,7 @@ const QuestionPanel = ({
             {questions[currentIndex]?.followUps?.length > 0 && (
               <ul>
                 {questions[currentIndex].followUps.map((item, i) => (
-                  <li key={i}> {item?.text || item}</li>
+                  <li key={i}>{item?.text || item}</li>
                 ))}
               </ul>
             )}

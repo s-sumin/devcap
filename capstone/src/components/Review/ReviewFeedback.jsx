@@ -1,15 +1,15 @@
+// src/components/Review/ReviewFeedback.jsx
 import React from 'react';
 import styled from 'styled-components';
 import { FaMapPin } from 'react-icons/fa';
 
 const Container = styled.div`
   width: 90%;
-  height: 300px;
   margin: 50px auto;
   border-radius: 30px;
-  border: 2px solid var(--Primary-primary_300, #8E48E8);
-  background: var(--Primary-primary_050, #F7F1FF);
-  padding: 30px 30px 60px 30px;
+  border: 2px solid #8E48E8;
+  background: #F7F1FF;
+  padding: 30px 40px;
   position: relative;
 `;
 
@@ -18,7 +18,7 @@ const Timeline = styled.div`
   height: 12px;
   background: #d8c4ff;
   border-radius: 10px;
-  margin-bottom: 50px;
+  margin-bottom: 30px;
 `;
 
 const Pin = styled(FaMapPin)`
@@ -57,55 +57,16 @@ const Timestamp = styled.div`
 const FeedbackList = styled.ul`
   margin-top: 10px;
   padding-left: 18px;
-  font-size: 30px;
+  font-size: 17px;
   color: #333;
+  line-height: 1.7;
 `;
 
 const FeedbackContent = styled.li`
-  margin-bottom: 10px;
-  line-height: 1.6;
+  margin-bottom: 8px;
 `;
 
-const Thumbnail = styled.div`
-  position: absolute;
-  top: -30px;
-  left: 20px;
-  width: 80px;
-  height: 60px;
-  background: #ccc;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 2px solid white;
-
-  video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-`;
-
-const ReviewFeedback = ({ videoRef }) => {
-  const feedbackData = [
-    {
-      timeLabel: '00:30',
-      seconds: 30,
-      left: '15%',
-      comments: ['“그래서”라는 단어가 반복되고 있습니다.']
-    },
-    {
-      timeLabel: '01:10',
-      seconds: 70,
-      left: '40%',
-      comments: ['문장이 길어져서 집중도가 떨어질 수 있습니다.']
-    },
-    {
-      timeLabel: '02:00',
-      seconds: 120,
-      left: '75%',
-      comments: ['목소리의 크기가 일정하지 않습니다.']
-    }
-  ];
-
+const ReviewFeedback = ({ videoRef, feedbackData = [] }) => {
   const handlePinClick = (seconds) => {
     if (videoRef?.current) {
       videoRef.current.currentTime = seconds;
@@ -113,12 +74,10 @@ const ReviewFeedback = ({ videoRef }) => {
     }
   };
 
+  if (!feedbackData.length) return null;
+
   return (
     <Container>
-      <Thumbnail>
-        <video src="/sample.mp4" muted autoPlay loop />
-      </Thumbnail>
-
       <Timeline>
         {feedbackData.map((feedback, index) => (
           <Pin
@@ -130,13 +89,16 @@ const ReviewFeedback = ({ videoRef }) => {
         ))}
       </Timeline>
 
-      {/* 첫 번째 피드백 영역 표시 */}
-      <Timestamp>{feedbackData[0].timeLabel}</Timestamp>
-      <FeedbackList>
-        {feedbackData[0].comments.map((text, idx) => (
-          <FeedbackContent key={idx}>{text}</FeedbackContent>
-        ))}
-      </FeedbackList>
+      {feedbackData.map((feedback, index) => (
+        <div key={index} style={{ marginBottom: '24px' }}>
+          <Timestamp>{feedback.timeLabel}</Timestamp>
+          <FeedbackList>
+            {feedback.comments.map((text, idx) => (
+              <FeedbackContent key={idx}>{text}</FeedbackContent>
+            ))}
+          </FeedbackList>
+        </div>
+      ))}
     </Container>
   );
 };

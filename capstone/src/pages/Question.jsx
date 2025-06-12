@@ -33,7 +33,7 @@ const Question = () => {
     type,
     resumeId,
     speechId,
-    videoId: practiceVideoId, // ✅ practice에서 넘어온 videoId 받기 (발표용)
+    videoId: practiceVideoId,
   } = location.state || {};
 
   const [videoTitle, setVideoTitle] = useState("");
@@ -54,9 +54,14 @@ const Question = () => {
         } else {
           response = await fetchSpeechQuestions(speechId);
         }
+
+        console.log("🟡 [Question.jsx] 받아온 전체 질문 목록:", response.questions);
+        console.log("🟡 [Question.jsx] 총 질문 수:", response.questions?.length);
+        console.table(response.questions);
+
         setQuestions(response.questions);
       } catch (err) {
-        console.error("질문 불러오기 실패:", err);
+        console.error("❌ [Question.jsx] 질문 불러오기 실패:", err);
         setQuestions([]);
       }
     };
@@ -102,7 +107,7 @@ const Question = () => {
           webcamStream={webcamStream}
           resumeId={resumeId}
           speechId={speechId}
-          practiceVideoId={practiceVideoId} // ✅ 발표용 videoId 추가 전달
+          practiceVideoId={practiceVideoId}
         />
       </Container>
     </Layout>

@@ -44,7 +44,7 @@ const Practice = () => {
     type,
     resumeId,
     speechId,
-    scriptText: initialScriptText, // ✅ 전달받은 scriptText
+    scriptText: initialScriptText,
   } = location.state || {};
 
   const [scriptText, setScriptText] = useState(initialScriptText || "");
@@ -66,10 +66,11 @@ const Practice = () => {
         videoBlob,
         videoTitle,
         type,
+        id: type === "interview" ? resumeId : speechId,
       });
 
       if (response.videoId) {
-        setVideoId(response.videoId);
+        setVideoId(response.videoId); // ⬅️ 이 시점에서 아래 useEffect가 작동
       } else {
         console.warn("⚠️ 응답에 videoId 없음");
       }
@@ -77,6 +78,12 @@ const Practice = () => {
       console.error("❌ 영상 업로드 실패:", err);
     }
   };
+
+  useEffect(() => {
+    if (videoId) {
+      setShowFinishModal(true); // ✅ videoId가 생겼을 때만 모달 오픈
+    }
+  }, [videoId]);
 
   const handleStartRecording = () => {
     if (!videoTitle.trim()) {
@@ -112,7 +119,8 @@ const Practice = () => {
   };
 
   const handleFinish = () => {
-    setShowFinishModal(true);
+    // ✅ videoId 생기면 useEffect에서 모달 자동 오픈
+    console.log("🟣 영상 업로드 중...");
   };
 
   return (
