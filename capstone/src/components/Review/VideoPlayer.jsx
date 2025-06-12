@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
-import Hls from "hls.js";
-import axiosInstance from "../../api/axiosInstance"; // ✅ 수정된 부분
+import Hls from "hls.js"; // ✅ HLS.js로 스트리밍
 
 const VideoWrapper = styled.div`
   display: flex;
-
 `;
 
 const VideoContainer = styled.div`
@@ -21,7 +19,7 @@ const VideoContainer = styled.div`
 const VideoPlayer = ({ hlsUrl, videoRef }) => {
   useEffect(() => {
     if (!hlsUrl || !videoRef?.current) {
-      console.warn("⛔ [VideoPlayer] hlsUrl 없음");
+      console.warn("⛔ [VideoPlayer] hlsUrl 없음 → 렌더 생략 또는 대기");
       return;
     }
 
@@ -32,13 +30,16 @@ const VideoPlayer = ({ hlsUrl, videoRef }) => {
       hls.loadSource(hlsUrl);
       hls.attachMedia(video);
 
-      return () => hls.destroy();
+      return () => hls.destroy(); // ✅ 클린업
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = hlsUrl;
     } else {
       console.warn("❌ [VideoPlayer] HLS 미지원 브라우저입니다.");
     }
   }, [hlsUrl, videoRef]);
+
+  // ✅ hlsUrl이 없으면 렌더하지 않음
+  if (!hlsUrl) return null;
 
   return (
     <VideoWrapper>
@@ -55,6 +56,5 @@ const VideoPlayer = ({ hlsUrl, videoRef }) => {
     </VideoWrapper>
   );
 };
-
 
 export default VideoPlayer;

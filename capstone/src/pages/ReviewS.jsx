@@ -107,16 +107,20 @@ const ReviewS = () => {
   const [hlsUrl, setHlsUrl] = useState("");
 
   useEffect(() => {
+    console.log("🚀 useEffect 진입");
+    console.log("🧾 전달된 props:", { speechId, type });
+
     const loadFeedback = async () => {
       try {
+        console.log("📡 fetchReviewFeedback 호출");
         const result = await fetchReviewFeedback({ id: speechId, type });
-        console.log("✅ 응답:", result);
+        console.log("✅ fetchReviewFeedback 응답:", result);
 
         setTitle(result.title);
         setDate(result.date);
         setFeedbackData(result.feedbackData || []);
         setFeedbacks(result.feedbacks || []);
-        setHlsUrl(result.hlsUrl || ""); // ✅ 저장
+        setHlsUrl(result.hlsUrl || "");
       } catch (err) {
         console.warn("⚠️ 피드백 데이터 로딩 실패", err);
         setTitle(videoTitle || "제목 없음");
@@ -124,9 +128,12 @@ const ReviewS = () => {
       }
     };
 
-    if (speechId && type) loadFeedback();
+    if (speechId && type) {
+      loadFeedback();
+    } else {
+      console.warn("⛔ speechId 또는 type이 누락됨", { speechId, type });
+    }
   }, [speechId, type, videoTitle]);
-
 
   const handleNavigateToTotal = () => {
     navigate("/totalreview", {
@@ -175,6 +182,5 @@ const ReviewS = () => {
     </Layout>
   );
 };
-
 
 export default ReviewS;

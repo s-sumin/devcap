@@ -166,8 +166,9 @@ const QuestionPanel = ({
 
           if (practiceVideoId) {
             navigate("/reviewS", {
-              state: { videoId: practiceVideoId, videoTitle, type },
+              state: { speechId, videoTitle, type },
             });
+
           } else {
             console.warn("❌ practiceVideoId 없음 → 리뷰 페이지 이동 실패");
           }
