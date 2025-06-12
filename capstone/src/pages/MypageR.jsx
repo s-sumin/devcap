@@ -1,36 +1,37 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout.jsx";
 import Header from "../components/Header.jsx";
-import VideoList from "../components/MypageR/VideoList.jsx";
 import styled from "styled-components";
-import axios from "axios";
+import { fetchInterviewVideos } from "../api/mypageApi";
+import InterviewVideoItem from "../components/Mypage/InterviewVideoItem";
 
 const Container = styled.div`
   padding: 40px 100px;
 `;
 
+const ListWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
+
 const MyPageR = () => {
   const [videos, setVideos] = useState([]);
-  const [filter, setFilter] = useState("all");
 
   useEffect(() => {
-    axios.get("/api/mypage/videos", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
-    })
-      .then((res) => setVideos(res.data))
-      .catch((err) => console.error("🚫 영상 불러오기 실패:", err));
+    fetchInterviewVideos().then(setVideos);
   }, []);
-
-  const filteredVideos = videos.filter(video => {
-    if (filter === "all") return true;
-    return video.type === filter;
-  });
 
   return (
     <Layout>
       <Header />
       <Container>
-        <VideoList videos={filteredVideos} />
+        <h2>면접 연습 영상</h2>
+        <ListWrapper>
+          {videos.map((video, i) => (
+            <InterviewVideoItem key={i} video={video} />
+          ))}
+        </ListWrapper>
       </Container>
     </Layout>
   );

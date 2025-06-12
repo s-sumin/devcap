@@ -1,31 +1,37 @@
 import React, { useEffect, useState } from "react";
-import Layout from "../components/Layout";
-import Header from "../components/Header";
-import SpeechVideoList from "../components/MypageS/SpeechVideoList";
+import Layout from "../components/Layout.jsx";
+import Header from "../components/Header.jsx";
 import styled from "styled-components";
-import axios from "axios";
+import { fetchSpeechVideos } from "../api/mypageApi";
+import SpeechVideoItem from "../components/Mypage/SpeechVideoItem";
 
 const Container = styled.div`
   padding: 40px 100px;
+`;
+
+const ListWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 `;
 
 const MyPageS = () => {
   const [videos, setVideos] = useState([]);
 
   useEffect(() => {
-    axios.get("/api/mypage/getspeech", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
-    })
-    .then(res => setVideos(res.data))
-    .catch(err => console.error("🚫 발표 영상 불러오기 실패:", err));
+    fetchSpeechVideos().then(setVideos);
   }, []);
 
   return (
     <Layout>
       <Header />
       <Container>
-        <h1>발표 연습 영상</h1>
-        <SpeechVideoList videos={videos} />
+        <h2>발표 연습 영상</h2>
+        <ListWrapper>
+          {videos.map((video, i) => (
+            <SpeechVideoItem key={i} video={video} />
+          ))}
+        </ListWrapper>
       </Container>
     </Layout>
   );

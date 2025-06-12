@@ -11,9 +11,10 @@ import Question from "./pages/Question.jsx";
 import ReviewR from "./pages/ReviewR.jsx";
 import ReviewS from "./pages/ReviewS.jsx";
 import TotalReview from "./pages/TotalReview.jsx";
-
-import VideoWatch from "./pages/VideoWatch";
-import AnalysisResult from "./pages/AnalysisResult";
+import VideoWatchR from "./pages/VideoWatchR.jsx";
+import VideoWatchS from "./pages/VideoWatchS.jsx";
+import AnalysisResultR from "./pages/AnalysisResultR.jsx";
+import AnalysisResultS from "./pages/AnalysisResultS.jsx";
 
 function App() {
   return (
@@ -29,6 +30,11 @@ function App() {
         <Route path="/reviewr" element={<ReviewR />} />
         <Route path="/reviews" element={<ReviewS />} />
         <Route path="/totalReview" element={<TotalReview />} />
+        <Route path="/videoWatchR" element={<VideoWatchR />} />
+        <Route path="/videoWatchS" element={<VideoWatchS />} />
+        <Route path="/analysisResultR" element={<AnalysisResultR />} />
+        <Route path="/analysisResultS" element={<AnalysisResultS />} />
+
 
       </Routes>
     </Router>
