@@ -1,0 +1,85 @@
+// src/components/Loading2.jsx
+import React, { useEffect, useState } from "react";
+import styled from "styled-components";
+
+const Overlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const Modal = styled.div`
+  background: white;
+  padding: 40px 60px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+`;
+
+const Title = styled.h2`
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #8E48E8;
+`;
+
+const Description = styled.p`
+  font-size: 18px;
+  color: #444;
+  margin-top: 20px;
+`;
+
+const Spinner = styled.div`
+  margin: 20px auto;
+  width: 80px;
+  height: 80px;
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #8E48E8;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
+const Countdown = styled.div`
+  font-size: 22px;
+  font-weight: 600;
+  color: #8E48E8;
+  margin-top: 16px;
+`;
+
+const Loading2 = () => {
+  const [secondsLeft, setSecondsLeft] = useState(10);// 기본 2초로 설정
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSecondsLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <Overlay>
+      <Modal>
+        <Title><strong>SpiCoach</strong>가 업로드중입니다...</Title>
+        <Spinner />
+        <Countdown>📦 영상 업로드중... {secondsLeft}초</Countdown>
+        <Description>
+          최적화된 피드백을 드리기 위해 영상을 업로드 중이니 잠시만 기다려주세요. <br />
+          최대 1분 정도 소요될 수 있습니다.
+        </Description>
+      </Modal>
+    </Overlay>
+  );
+};
+
+export default Loading2;

@@ -8,6 +8,7 @@ import WebcamView from "../components/Practice/WebcamView";
 import ScriptPanel from "../components/Practice/ScriptPanel";
 import PracticeTitle from "../components/Practice/PracticeTitle";
 import PracFinish from "../components/Practice/PracFinish";
+import Loading2 from "../components/Common/Loading2"; // ✅ 로딩 컴포넌트 import
 import { uploadPracticeVideo } from "../api/videoApi";
 
 const Container = styled.div`
@@ -49,12 +50,14 @@ const Practice = () => {
 
   const [scriptText, setScriptText] = useState(initialScriptText || "");
   const [isBlurred, setIsBlurred] = useState(false);
-  const [showFinishModal, setShowFinishModal] = useState(false);
   const [videoTitle, setVideoTitle] = useState("");
   const [stream, setStream] = useState(null);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [recordedChunks, setRecordedChunks] = useState([]);
   const [videoId, setVideoId] = useState(null);
+
+  const [showLoading, setShowLoading] = useState(false); // ✅ 추가
+  const [showFinishModal, setShowFinishModal] = useState(false);
 
   const handleStreamReady = (incomingStream) => {
     setStream(incomingStream);
@@ -70,7 +73,7 @@ const Practice = () => {
       });
 
       if (response.videoId) {
-        setVideoId(response.videoId); // ⬅️ 이 시점에서 아래 useEffect가 작동
+        setVideoId(response.videoId); // ✅ 아래 useEffect에서 처리
       } else {
         console.warn("⚠️ 응답에 videoId 없음");
       }
@@ -81,7 +84,14 @@ const Practice = () => {
 
   useEffect(() => {
     if (videoId) {
-      setShowFinishModal(true); // ✅ videoId가 생겼을 때만 모달 오픈
+      setShowLoading(true);
+
+      const timer = setTimeout(() => {
+        setShowLoading(false);
+        setShowFinishModal(true);
+      }, 2000); // 2초 로딩 후 전환
+
+      return () => clearTimeout(timer);
     }
   }, [videoId]);
 
@@ -119,8 +129,8 @@ const Practice = () => {
   };
 
   const handleFinish = () => {
-    // ✅ videoId 생기면 useEffect에서 모달 자동 오픈
     console.log("🟣 영상 업로드 중...");
+    // videoId가 생기면 useEffect에서 처리됨
   };
 
   return (
@@ -145,6 +155,8 @@ const Practice = () => {
           onStopRecording={handleStopRecording}
           videoTitle={videoTitle}
         />
+
+        {showLoading && <Loading2 />} {/* ✅ 로딩 화면 */}
 
         {showFinishModal && (
           <ModalOverlay>

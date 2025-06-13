@@ -89,6 +89,21 @@ const Pin = styled(FaMapPin)`
     white-space: nowrap;
   }
 `;
+const PinLabel = styled.div`
+  position: absolute;
+  top: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #8321ff;
+  color: white;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  white-space: nowrap;
+  z-index: 999;
+`;
+
 
 const ReviewFeedback = ({ videoRef, feedbackData = [], feedbacks = [] }) => {
   const handlePinClick = (seconds) => {
@@ -106,12 +121,13 @@ const ReviewFeedback = ({ videoRef, feedbackData = [], feedbacks = [] }) => {
       <TimelineWrapper>
         <Timeline>
           {feedbackData.map((feedback, index) => (
-            <Pin
-              key={index}
-              style={{ left: feedback.left }}
-              data-time={feedback.timeLabel}
-              onClick={() => handlePinClick(feedback.seconds)}
-            />
+            <div key={index} style={{ position: "absolute", left: feedback.left }}>
+              <Pin
+                data-time={feedback.timeLabel}
+                onClick={() => handlePinClick(feedback.seconds)}
+              />
+              <PinLabel>{feedback.timeLabel}</PinLabel>
+            </div>
           ))}
         </Timeline>
       </TimelineWrapper>
@@ -140,8 +156,8 @@ const ReviewFeedback = ({ videoRef, feedbackData = [], feedbacks = [] }) => {
           </SummaryList>
         </>
       )}
-      
-      
+
+
     </Container>
   );
 };
